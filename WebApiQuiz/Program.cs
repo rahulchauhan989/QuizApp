@@ -15,8 +15,12 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<QuiZappDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("RMSDbConnection")));
 
+    // AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
     builder.Services.AddScoped<IQuizRepository, QuizRepository>();
     builder.Services.AddScoped<IQuizService, QuizService>();
+    builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
+    builder.Services.AddScoped<IUserQuizAttemptRepository, UserQuizAttemptRepository>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

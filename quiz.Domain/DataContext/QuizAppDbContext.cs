@@ -131,9 +131,7 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Durationminutes)
                 .HasDefaultValueSql("30")
                 .HasColumnName("durationminutes");
-            entity.Property(e => e.Enddate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("enddate");
+            entity.Property(e => e.Enddate).HasColumnName("enddate");
             entity.Property(e => e.Isdeleted)
                 .HasDefaultValueSql("false")
                 .HasColumnName("isdeleted");
@@ -143,9 +141,7 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Modifiedat)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("modifiedat");
-            entity.Property(e => e.Startdate)
-                .HasColumnType("timestamp without time zone")
-                .HasColumnName("startdate");
+            entity.Property(e => e.Startdate).HasColumnName("startdate");
             entity.Property(e => e.Title)
                 .HasMaxLength(150)
                 .HasColumnName("title");
@@ -267,6 +263,7 @@ public partial class QuiZappDbContext : DbContext
             entity.HasIndex(e => new { e.Userid, e.Quizid }, "userquizattempts_userid_quizid_key").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.Categoryid).HasColumnName("categoryid");
             entity.Property(e => e.Endedat)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("endedat");
@@ -282,6 +279,11 @@ public partial class QuiZappDbContext : DbContext
                 .HasColumnName("startedat");
             entity.Property(e => e.Timespent).HasColumnName("timespent");
             entity.Property(e => e.Userid).HasColumnName("userid");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Userquizattempts)
+                .HasForeignKey(d => d.Categoryid)
+                .OnDelete(DeleteBehavior.Cascade)
+                .HasConstraintName("fk_category");
 
             entity.HasOne(d => d.Quiz).WithMany(p => p.Userquizattempts)
                 .HasForeignKey(d => d.Quizid)

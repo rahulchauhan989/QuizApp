@@ -19,4 +19,22 @@ public interface IQuizService
     Task<bool> IsCategoryExistsAsync(int Categoryid);
 
     Task<bool> IsQuizTitleExistsAsync(string title, int quizId);
+
+    Task<ValidationResult> ValidateQuizAsync(CreateQuizDto dto);
+
+    Task<ValidationResult> ValidateQuestionAsync(QuestionCreateDto dto);
+
+    Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter);
+
+    Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter);
+
+    // Task<Userquizattempt> SubmitQuizAttemptAsync(SubmitQuizAttemptDto dto);
+
+    Task<int> SubmitQuizAsync(SubmitQuizRequest request);
+
+    Task<int> GetTotalMarksAsync(SubmitQuizRequest request);
+
+    Task<int> GetQuetionsMarkByIdAsync(int questionId);
+
+    Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId);
 }

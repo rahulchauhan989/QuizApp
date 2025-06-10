@@ -26,3 +26,17 @@ d:\Quizes-master\quiz.Domain\obj\Debug\net7.0\refint\quiz.Domain.dll
 d:\Quizes-master\quiz.Domain\obj\Debug\net7.0\quiz.Domain.pdb
 d:\Quizes-master\quiz.Domain\obj\Debug\net7.0\quiz.Domain.genruntimeconfig.cache
 d:\Quizes-master\quiz.Domain\obj\Debug\net7.0\ref\quiz.Domain.dll
+D:\Quize-App\quiz.Domain\bin\Debug\net7.0\quiz.Domain.deps.json
+D:\Quize-App\quiz.Domain\bin\Debug\net7.0\quiz.Domain.runtimeconfig.json
+D:\Quize-App\quiz.Domain\bin\Debug\net7.0\quiz.Domain.dll
+D:\Quize-App\quiz.Domain\bin\Debug\net7.0\quiz.Domain.pdb
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.csproj.AssemblyReference.cache
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.GeneratedMSBuildEditorConfig.editorconfig
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.AssemblyInfoInputs.cache
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.AssemblyInfo.cs
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.csproj.CoreCompileInputs.cache
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.dll
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\refint\quiz.Domain.dll
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.pdb
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\quiz.Domain.genruntimeconfig.cache
+D:\Quize-App\quiz.Domain\obj\Debug\net7.0\ref\quiz.Domain.dll

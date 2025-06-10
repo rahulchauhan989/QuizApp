@@ -7050,11 +7050,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Quize-App\\quiz.Repo\\quiz.Repo.csproj",
+      "projectUniqueName": "d:\\Quize-App\\quiz.Repo\\quiz.Repo.csproj",
       "projectName": "quiz.Repo",
-      "projectPath": "D:\\Quize-App\\quiz.Repo\\quiz.Repo.csproj",
+      "projectPath": "d:\\Quize-App\\quiz.Repo\\quiz.Repo.csproj",
       "packagesPath": "C:\\Users\\pca88\\.nuget\\packages\\",
-      "outputPath": "D:\\Quize-App\\quiz.Repo\\obj\\",
+      "outputPath": "d:\\Quize-App\\quiz.Repo\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\pca88\\AppData\\Roaming\\NuGet\\NuGet.Config"
