@@ -24,6 +24,8 @@ public partial class QuiZappDbContext : DbContext
 
     public virtual DbSet<Quiz> Quizzes { get; set; }
 
+    public virtual DbSet<Quizquestion> Quizquestions { get; set; }
+
     public virtual DbSet<Quiztag> Quiztags { get; set; }
 
     public virtual DbSet<Tag> Tags { get; set; }
@@ -101,17 +103,11 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Marks)
                 .HasDefaultValueSql("1")
                 .HasColumnName("marks");
-            entity.Property(e => e.Quizid).HasColumnName("quizid");
             entity.Property(e => e.Text).HasColumnName("text");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("fk_categories");
-
-            entity.HasOne(d => d.Quiz).WithMany(p => p.Questions)
-                .HasForeignKey(d => d.Quizid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_question_quiz");
         });
 
         modelBuilder.Entity<Quiz>(entity =>
@@ -131,7 +127,6 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Durationminutes)
                 .HasDefaultValueSql("30")
                 .HasColumnName("durationminutes");
-            entity.Property(e => e.Enddate).HasColumnName("enddate");
             entity.Property(e => e.Isdeleted)
                 .HasDefaultValueSql("false")
                 .HasColumnName("isdeleted");
@@ -141,7 +136,6 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Modifiedat)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("modifiedat");
-            entity.Property(e => e.Startdate).HasColumnName("startdate");
             entity.Property(e => e.Title)
                 .HasMaxLength(150)
                 .HasColumnName("title");
@@ -156,6 +150,26 @@ public partial class QuiZappDbContext : DbContext
                 .HasForeignKey(d => d.Createdby)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_quiz_user");
+        });
+
+        modelBuilder.Entity<Quizquestion>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("quizquestions");
+
+            entity.Property(e => e.Questionid).HasColumnName("questionid");
+            entity.Property(e => e.Quizid).HasColumnName("quizid");
+
+            entity.HasOne(d => d.Question).WithMany()
+                .HasForeignKey(d => d.Questionid)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("quizquestions_questionid_fkey");
+
+            entity.HasOne(d => d.Quiz).WithMany()
+                .HasForeignKey(d => d.Quizid)
+                .OnDelete(DeleteBehavior.Restrict)
+                .HasConstraintName("quizquestions_quizid_fkey");
         });
 
         modelBuilder.Entity<Quiztag>(entity =>

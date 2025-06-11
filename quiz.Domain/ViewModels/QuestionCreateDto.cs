@@ -2,7 +2,7 @@ namespace quiz.Domain.ViewModels;
 
 public class QuestionCreateDto
 {
-    public int QuizId { get; set; }
+    // public int QuizId { get; set; }
 
     public int Categoryid { get; set; }
     public string? Text { get; set; }  //

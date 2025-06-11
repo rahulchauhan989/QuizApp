@@ -12,6 +12,12 @@ public interface IQuizService
 
     Task<List<QuestionDto>> GetRandomQuestionsAsync(int Categoryid, int count);
 
+    Task<List<QuestionDto>> GetRandomQuestionsByQuizIdAsync(int quizId, int count);
+
+    Task<int> GetQuestionCountByQuizIdAsync(int quizId);
+
+    Task<bool> IsQuizExistsAsync(int quizId);
+
     Task<QuestionDto> CreateQuestionAsync(QuestionCreateDto dto);
 
     Task<int> GetQuestionCountByCategoryAsync(int Categoryid);
@@ -37,4 +43,10 @@ public interface IQuizService
     Task<int> GetQuetionsMarkByIdAsync(int questionId);
 
     Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId);
+
+    Task<QuizDto> CreateQuizFromExistingQuestionsAsync(CreateQuizFromExistingQuestionsDto dto);
+
+    Task<ValidationResult> ValidateQuizFromExistingQuestions(CreateQuizFromExistingQuestionsDto dto);
+
+    Task<List<UserQuizHistoryDto>> GetUserQuizHistoryAsync(int userId);
 }

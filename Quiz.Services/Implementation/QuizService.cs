@@ -19,11 +19,157 @@ public class QuizService : IQuizService
         _attemptRepo = attemptRepo;
         _answerRepo = answerRepo;
     }
- 
 
+
+
+    // public async Task<QuizDto> CreateQuizAsync(CreateQuizDto dto)
+    // {
+    //     var quiz = new quiz.Domain.DataModels.Quiz
+    //     {
+    //         Title = dto.Title!,
+    //         Description = dto.Description,
+    //         Totalmarks = dto.Totalmarks,
+    //         Durationminutes = dto.Durationminutes,
+    //         Ispublic = dto.Ispublic,
+    //         Startdate = dto.Startdate,
+    //         Enddate = dto.Enddate,
+    //         Categoryid = dto.Categoryid,
+    //         Createdby = dto.Createdby,
+    //     };
+
+    //     if (dto.Questions != null)
+    //     {
+    //         quiz.Questions = dto.Questions.Select(q => new Question
+    //         {
+    //             Text = q.Text!,
+    //             Marks = q.Marks,
+    //             Difficulty = q.Difficulty,
+    //             CategoryId = dto.Categoryid, // Assuming all questions belong to the same category
+    //             Options = q.Options?.Select(o => new Option
+    //             {
+    //                 Text = o.Text!,
+    //                 Iscorrect = o.IsCorrect
+    //             }).ToList() ?? new List<Option>()
+    //         }).ToList();
+    //     }
+
+    //     if (dto.TagIds != null)
+    //     {
+    //         quiz.Quiztags = dto.TagIds.Select(tagId => new Quiztag { Tagid = tagId }).ToList();
+    //     }
+
+    //     await _quizRepository.CreateQuizAsync(quiz);
+
+    //     // Return the output DTO 
+    //     return new QuizDto
+    //     {
+    //         Id = quiz.Id,
+    //         Title = quiz.Title!,
+    //         Description = quiz.Description,
+    //         Totalmarks = quiz.Totalmarks,
+    //         Durationminutes = quiz.Durationminutes,
+    //         Ispublic = quiz.Ispublic,
+    //         Startdate = quiz.Startdate,
+    //         Enddate = quiz.Enddate,
+    //         Categoryid = quiz.Categoryid,
+    //         Createdby = quiz.Createdby,
+    //         Questions = quiz.Questions?.Select(q => new QuestionDto
+    //         {
+    //             Id = q.Id,
+    //             // QuizId = q.Quizid,
+    //             Categoryid = q.CategoryId ?? 0, // Default to 0 if null
+    //             Text = q.Text,
+    //             Marks = q.Marks,
+    //             Difficulty = q.Difficulty,
+    //             Options = q.Options.Select(o => new OptionDto
+    //             {
+    //                 Id = o.Id,
+    //                 Text = o.Text,
+    //                 IsCorrect = o.Iscorrect
+    //             }).ToList()
+    //         }).ToList()
+    //     };
+    // }
+
+    // public async Task<QuizDto> CreateQuizAsync(CreateQuizDto dto)
+    // {
+    //     // Validate total marks of questions
+    //     if (dto.Questions != null && dto.Questions.Any())
+    //     {
+    //         int totalQuestionMarks = dto.Questions.Sum(q => q.Marks);
+    //         if (totalQuestionMarks != dto.Totalmarks)
+    //         {
+    //             throw new InvalidOperationException("Total marks of the quiz must match the sum of the marks of its questions.");
+    //         }
+    //     }
+
+    //     var quiz = new quiz.Domain.DataModels.Quiz
+    //     {
+    //         Title = dto.Title!,
+    //         Description = dto.Description,
+    //         Totalmarks = dto.Totalmarks,
+    //         Durationminutes = dto.Durationminutes,
+    //         Ispublic = dto.Ispublic,
+    //         Startdate = dto.Startdate?.ToUniversalTime() ?? DateTime.UtcNow, // Convert to UTC
+    //         Enddate = dto.Enddate?.ToUniversalTime() ?? DateTime.UtcNow,     // Convert to UTC
+    //         Categoryid = dto.Categoryid,
+    //         Createdby = dto.Createdby,
+    //     };
+
+    //     // Save the quiz to generate its ID
+    //     await _quizRepository.CreateQuizAsync(quiz);
+
+    //     // Handle questions and associate them with the quiz
+    //     if (dto.Questions != null && dto.Questions.Any())
+    //     {
+    //         foreach (var questionDto in dto.Questions)
+    //         {
+    //             var question = new Question
+    //             {
+    //                 Text = questionDto.Text!,
+    //                 Marks = questionDto.Marks,
+    //                 Difficulty = questionDto.Difficulty,
+    //                 CategoryId = dto.Categoryid, // Assuming all questions belong to the same category
+    //                 Options = questionDto.Options?.Select(o => new Option
+    //                 {
+    //                     Text = o.Text!,
+    //                     Iscorrect = o.IsCorrect,
+    //                 }).ToList() ?? new List<Option>()
+    //             };
+
+    //             // Add the question to the database and associate it with the quiz
+    //             await _quizRepository.AddQuestionToQuizAsync(quiz, question);
+    //         }
+    //     }
+
+    //     // Return the output DTO
+    //     return new QuizDto
+    //     {
+    //         Id = quiz.Id,
+    //         Title = quiz.Title!,
+    //         Description = quiz.Description,
+    //         Totalmarks = quiz.Totalmarks,
+    //         Durationminutes = quiz.Durationminutes,
+    //         Ispublic = quiz.Ispublic,
+    //         Startdate = quiz.Startdate,
+    //         Enddate = quiz.Enddate,
+    //         Categoryid = quiz.Categoryid,
+    //         Createdby = quiz.Createdby,
+    //     };
+    // }
 
     public async Task<QuizDto> CreateQuizAsync(CreateQuizDto dto)
     {
+        // Validate total marks of questions
+        // if (dto.Questions != null && dto.Questions.Any())
+        // {
+        //     int totalQuestionMarks = dto.Questions.Sum(q => q.Marks);
+        //     if (totalQuestionMarks != dto.Totalmarks)
+        //     {
+        //         throw new InvalidOperationException("Total marks of the quiz must match the sum of the marks of its questions.");
+        //     }
+        // }
+
         var quiz = new quiz.Domain.DataModels.Quiz
         {
             Title = dto.Title!,
@@ -31,36 +177,42 @@ public class QuizService : IQuizService
             Totalmarks = dto.Totalmarks,
             Durationminutes = dto.Durationminutes,
             Ispublic = dto.Ispublic,
-            Startdate = dto.Startdate,
-            Enddate = dto.Enddate,
+            // Startdate = dto.Startdate?.ToUniversalTime() ?? DateTime.UtcNow, 
+            // Enddate = dto.Enddate?.ToUniversalTime() ?? DateTime.UtcNow,     
             Categoryid = dto.Categoryid,
             Createdby = dto.Createdby,
         };
 
-        if (dto.Questions != null)
-        {
-            quiz.Questions = dto.Questions.Select(q => new Question
-            {
-                Text = q.Text!,
-                Marks = q.Marks,
-                Difficulty = q.Difficulty,
-                CategoryId = dto.Categoryid, // Assuming all questions belong to the same category
-                Options = q.Options?.Select(o => new Option
-                {
-                    Text = o.Text!,
-                    Iscorrect = o.IsCorrect
-                }).ToList() ?? new List<Option>()
-            }).ToList();
-        }
-
-        if (dto.TagIds != null)
-        {
-            quiz.Quiztags = dto.TagIds.Select(tagId => new Quiztag { Tagid = tagId }).ToList();
-        }
-
+        // Save the quiz to generate its ID
         await _quizRepository.CreateQuizAsync(quiz);
 
-        // Return the output DTO 
+        // Handle questions and associate them with the quiz
+        if (dto.Questions != null && dto.Questions.Any())
+        {
+            foreach (var questionDto in dto.Questions)
+            {
+                var question = new Question
+                {
+                    Text = questionDto.Text!,
+                    Marks = questionDto.Marks,
+                    Difficulty = questionDto.Difficulty,
+                    CategoryId = dto.Categoryid, // Assuming all questions belong to the same category
+                    Options = questionDto.Options?.Select(o => new Option
+                    {
+                        Text = o.Text!,
+                        Iscorrect = o.IsCorrect,
+                    }).ToList() ?? new List<Option>()
+                };
+
+                // Add the question to the database and associate it with the quiz
+                await _quizRepository.AddQuestionToQuizAsync(quiz, question);
+            }
+        }
+
+        // Fetch the questions associated with the quiz
+        var questions = await _quizRepository.GetQuestionsByQuizIdAsync(quiz.Id);
+
+        // Return the output DTO
         return new QuizDto
         {
             Id = quiz.Id,
@@ -69,15 +221,13 @@ public class QuizService : IQuizService
             Totalmarks = quiz.Totalmarks,
             Durationminutes = quiz.Durationminutes,
             Ispublic = quiz.Ispublic,
-            Startdate = quiz.Startdate,
-            Enddate = quiz.Enddate,
+            // Startdate = quiz.Startdate,
+            // Enddate = quiz.Enddate,
             Categoryid = quiz.Categoryid,
             Createdby = quiz.Createdby,
-            Questions = quiz.Questions?.Select(q => new QuestionDto
+            Questions = questions.Select(q => new QuestionDto
             {
                 Id = q.Id,
-                QuizId = q.Quizid,
-                Categoryid = q.CategoryId ?? 0, // Default to 0 if null
                 Text = q.Text,
                 Marks = q.Marks,
                 Difficulty = q.Difficulty,
@@ -98,7 +248,7 @@ public class QuizService : IQuizService
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,
-            QuizId = q.Quizid,
+            // QuizId = q.Quizid,
             Categoryid = (int)q.CategoryId!,
             Text = q.Text,
             Marks = q.Marks,
@@ -112,13 +262,47 @@ public class QuizService : IQuizService
         }).ToList();
     }
 
+    public async Task<List<QuestionDto>> GetRandomQuestionsByQuizIdAsync(int quizId, int count)
+    {
+        var questions = await _quizRepository.GetRandomQuestionsByQuizIdAsync(quizId, count);
+
+        return questions.Select(q => new QuestionDto
+        {
+            Id = q.Id,
+            QuizId = quizId,
+            Categoryid = q.CategoryId ?? 0, // Default to 0 if null
+            Text = q.Text,
+            Marks = q.Marks,
+            Difficulty = q.Difficulty,
+            Options = q.Options.Select(o => new OptionDto
+            {
+                Id = o.Id,
+                Text = o.Text,
+                IsCorrect = o.Iscorrect
+            }).ToList()
+        }).ToList();
+        // return null;
+    }
+
+    public async Task<int> GetQuestionCountByQuizIdAsync(int quizId)
+    {
+        return await _quizRepository.GetQuestionCountByQuizIdAsync(quizId);
+        // return 0;
+    }
+
+    public async Task<bool> IsQuizExistsAsync(int quizId)
+    {
+        return await _quizRepository.IsQuizExistsAsync(quizId);
+        // return true;
+    }
+
+
     public async Task<QuestionDto> CreateQuestionAsync(QuestionCreateDto dto)
     {
         var question = new Question
         {
-            Quizid = dto.QuizId,
             CategoryId = dto.Categoryid,
-            Text = dto.Text!,  //
+            Text = dto.Text!,
             Marks = dto.Marks,
             Difficulty = dto.Difficulty,
             Options = dto.Options!.Select(o => new Option
@@ -128,13 +312,17 @@ public class QuizService : IQuizService
             }).ToList()
         };
 
+        // Add the question to the database
         await _quizRepository.CreateQuestionAsync(question);
+
+        // Associate the question with the specified quiz, For Now No need to associate with quiz
+        // await _quizRepository.AddQuestionToQuizAsync(dto.QuizId, question.Id);
 
         // Map to DTO
         return new QuestionDto
         {
             Id = question.Id,
-            QuizId = question.Quizid,
+            // QuizId = dto.QuizId,
             Categoryid = (int)question.CategoryId!,
             Text = question.Text,
             Marks = question.Marks,
@@ -147,7 +335,6 @@ public class QuizService : IQuizService
             }).ToList()
         };
     }
-
     public async Task<int> GetQuestionCountByCategoryAsync(int Categoryid)
     {
         return await _quizRepository.GetQuestionCountByCategoryAsync(Categoryid);
@@ -164,6 +351,65 @@ public class QuizService : IQuizService
     {
         return await _quizRepository.IsQuizTitleExistsAsync(title, quizId);
     }
+
+    // public async Task<ValidationResult> ValidateQuizAsync(CreateQuizDto dto)
+    // {
+    //     return await Task.Run(() =>
+    //     {
+    //         string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
+
+    //         if (dto == null)
+    //             return ValidationResult.Failure("Quiz data is required.");
+
+    //         if (string.IsNullOrWhiteSpace(dto.Title))
+    //             return ValidationResult.Failure("Quiz title cannot be empty.");
+
+    //         if (dto.Totalmarks <= 0)
+    //             return ValidationResult.Failure("Total marks must be greater than zero.");
+
+    //         if (dto.Durationminutes <= 0)
+    //             return ValidationResult.Failure("Duration must be greater than zero.");
+
+    //         if (dto.Startdate >= dto.Enddate)
+    //             return ValidationResult.Failure("Start date must be before end date.");
+
+    //         if (dto.Enddate - dto.Startdate != TimeSpan.FromMinutes(dto.Durationminutes!.Value))
+    //             return ValidationResult.Failure("Duration does not match the difference between start and end date.");
+
+    //         if (dto.Categoryid <= 0)
+    //             return ValidationResult.Failure("Invalid Category ID.");
+
+    //         if (dto.Createdby <= 0)
+    //             return ValidationResult.Failure("Invalid Creator ID.");
+
+    //         // Validate questions if provided
+    //         if (dto.Questions != null && dto.Questions.Any())
+    //         {
+    //             foreach (var question in dto.Questions)
+    //             {
+    //                 if (string.IsNullOrWhiteSpace(question.Text))
+    //                     return ValidationResult.Failure("Question text cannot be empty.");
+
+    //                 if (question.Marks <= 0)
+    //                     return ValidationResult.Failure("Question marks must be greater than zero.");
+
+    //                 if (string.IsNullOrWhiteSpace(question.Difficulty) || !difficultyLevels.Contains(question.Difficulty))
+    //                     return ValidationResult.Failure($"Invalid difficulty level: {question.Difficulty}");
+
+    //                 if (question.Options == null || question.Options.Count != 4)
+    //                     return ValidationResult.Failure("Each question must have four options.");
+
+    //                 if (!question.Options.Any(o => o.IsCorrect))
+    //                     return ValidationResult.Failure("At least one option must be marked as correct.");
+
+    //                 if (question.Options.Count(o => o.IsCorrect) > 1)
+    //                     return ValidationResult.Failure("Only one option can be marked as correct.");
+    //             }
+    //         }
+
+    //         return ValidationResult.Success();
+    //     });
+    // }
 
     public async Task<ValidationResult> ValidateQuizAsync(CreateQuizDto dto)
     {
@@ -183,21 +429,23 @@ public class QuizService : IQuizService
             if (dto.Durationminutes <= 0)
                 return ValidationResult.Failure("Duration must be greater than zero.");
 
-            if (dto.Startdate >= dto.Enddate)
-                return ValidationResult.Failure("Start date must be before end date.");
+            // if (dto.Startdate >= dto.Enddate)
+            //     return ValidationResult.Failure("Start date must be before end date.");
 
-            if (dto.Enddate - dto.Startdate != TimeSpan.FromMinutes(dto.Durationminutes!.Value))
-                return ValidationResult.Failure("Duration does not match the difference between start and end date.");
+            // if (dto.Enddate - dto.Startdate != TimeSpan.FromMinutes(dto.Durationminutes!.Value))
+            //     return ValidationResult.Failure("Duration does not match the difference between start and end date.");
 
             if (dto.Categoryid <= 0)
                 return ValidationResult.Failure("Invalid Category ID.");
 
-            if (dto.Createdby <= 0)
-                return ValidationResult.Failure("Invalid Creator ID.");
 
             // Validate questions if provided
             if (dto.Questions != null && dto.Questions.Any())
             {
+                int totalQuestionMarks = dto.Questions.Sum(q => q.Marks);
+                if (totalQuestionMarks != dto.Totalmarks)
+                    return ValidationResult.Failure($"Total marks of the quiz: {dto.Totalmarks} must match the sum of the marks of its questions.{totalQuestionMarks}");
+
                 foreach (var question in dto.Questions)
                 {
                     if (string.IsNullOrWhiteSpace(question.Text))
@@ -223,7 +471,6 @@ public class QuizService : IQuizService
             return ValidationResult.Success();
         });
     }
-
     public async Task<ValidationResult> ValidateQuestionAsync(QuestionCreateDto dto)
     {
 
@@ -234,8 +481,8 @@ public class QuizService : IQuizService
              if (dto == null)
                  return ValidationResult.Failure("Question data is required.");
 
-             if (dto.QuizId <= 0)
-                 return ValidationResult.Failure("Invalid Quiz ID.");
+             //  if (dto.QuizId <= 0)
+             //      return ValidationResult.Failure("Invalid Quiz ID.");
 
              if (dto.Categoryid <= 0)
                  return ValidationResult.Failure("Invalid Category ID.");
@@ -352,29 +599,159 @@ public class QuizService : IQuizService
         // Get the marks for a specific question by its ID
         return await _quizRepository.GetQuetionsMarkByIdAsync(questionId);
     }
-     
-     public async Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId)
-     {
-            // Fetch the quiz details by ID
-            var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
-            if (quiz == null)
-                throw new Exception("Quiz not found.");
-    
-            // Map to CreateQuizViewModel
-            return new CreateQuizViewModel
+
+    public async Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId)
+    {
+        // Fetch the quiz details by ID
+        var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
+        if (quiz == null)
+            throw new Exception("Quiz not found.");
+
+        // Map to CreateQuizViewModel
+        return new CreateQuizViewModel
+        {
+            Id = quiz.Id,
+            Title = quiz.Title!,
+            Description = quiz.Description,
+            Totalmarks = quiz.Totalmarks,
+            Durationminutes = quiz.Durationminutes,
+            Ispublic = quiz.Ispublic,
+            // Startdate = quiz.Startdate,
+            // Enddate = quiz.Enddate,
+            Categoryid = quiz.Categoryid,
+
+        };
+    }
+
+
+    public async Task<QuizDto> CreateQuizFromExistingQuestionsAsync(CreateQuizFromExistingQuestionsDto dto)
+    {
+        // Validate total marks of selected questions
+        var selectedQuestions = await _quizRepository.GetQuestionsByIdsAsync(dto.QuestionIds);
+        // int totalQuestionMarks = selectedQuestions.Sum(q => q.Marks) ?? 0;
+        // if (totalQuestionMarks != dto.Totalmarks)
+        // {
+        //     throw new InvalidOperationException("Total marks of the quiz must match the sum of the marks of the selected questions.");
+        // }
+
+        var quiz = new quiz.Domain.DataModels.Quiz
+        {
+            Title = dto.Title,
+            Description = dto.Description,
+            Totalmarks = dto.Totalmarks,
+            Durationminutes = dto.Durationminutes,
+            Ispublic = dto.Ispublic,
+            // Startdate = dto.Startdate?.ToUniversalTime() ?? DateTime.UtcNow,
+            // Enddate = dto.Enddate?.ToUniversalTime() ?? DateTime.UtcNow,
+            Categoryid = dto.Categoryid,
+            Createdby = dto.Createdby,
+        };
+
+        // Save the quiz to generate its ID
+        await _quizRepository.CreateQuizAsync(quiz);
+
+        // Associate the selected questions with the quiz
+        foreach (var question in selectedQuestions)
+        {
+            await _quizRepository.AddQuestionToQuiz(quiz, question);
+        }
+
+        // Return the output DTO
+        return new QuizDto
+        {
+            Id = quiz.Id,
+            Title = quiz.Title,
+            Description = quiz.Description,
+            Totalmarks = quiz.Totalmarks,
+            Durationminutes = quiz.Durationminutes,
+            Ispublic = quiz.Ispublic,
+            // Startdate = quiz.Startdate,
+            // Enddate = quiz.Enddate,
+            Categoryid = quiz.Categoryid,
+            Createdby = quiz.Createdby,
+            Questions = selectedQuestions.Select(q => new QuestionDto
             {
-                Id = quiz.Id,
-                Title = quiz.Title!,
-                Description = quiz.Description,
-                Totalmarks = quiz.Totalmarks,
-                Durationminutes = quiz.Durationminutes,
-                Ispublic = quiz.Ispublic,
-                Startdate = quiz.Startdate,
-                Enddate = quiz.Enddate,
-                Categoryid = quiz.Categoryid,
-                
-            };
-     }
- 
+                Id = q.Id,
+                Text = q.Text,
+                Marks = q.Marks,
+                Difficulty = q.Difficulty,
+                Options = q.Options.Select(o => new OptionDto
+                {
+                    Id = o.Id,
+                    Text = o.Text,
+                    IsCorrect = o.Iscorrect
+                }).ToList()
+            }).ToList()
+        };
+    }
+
+    public async Task<ValidationResult> ValidateQuizFromExistingQuestions(CreateQuizFromExistingQuestionsDto dto)
+    {
+
+        if (dto == null)
+            return ValidationResult.Failure("Quiz data is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return ValidationResult.Failure("Quiz title cannot be empty.");
+
+        if (dto.Totalmarks <= 0)
+            return ValidationResult.Failure("Total marks must be greater than zero.");
+
+        if (dto.Durationminutes <= 0)
+            return ValidationResult.Failure("Duration must be greater than zero.");
+
+        // if (dto.Startdate >= dto.Enddate)
+        //     return ValidationResult.Failure("Start date must be before end date.");
+
+        // if (dto.Enddate - dto.Startdate != TimeSpan.FromMinutes(dto.Durationminutes!.Value))
+        //     return ValidationResult.Failure("Duration does not match the difference between start and end date.");
+
+        if (dto.Categoryid <= 0)
+            return ValidationResult.Failure("Invalid Category ID.");
+
+
+        if (dto.QuestionIds == null || !dto.QuestionIds.Any())
+            return ValidationResult.Failure("At least one question must be selected.");
+
+        var selectedQuestions = await _quizRepository.GetQuestionsByIdsAsync(dto.QuestionIds);
+        int totalQuestionMarks = selectedQuestions.Sum(q => q.Marks) ?? 0;
+        if (totalQuestionMarks != dto.Totalmarks)
+        {
+            return ValidationResult.Failure("Total marks of the quiz must match the sum of the marks of the selected questions.");
+        }
+
+        return ValidationResult.Success();
+
+    }
+
+    public async Task<List<UserQuizHistoryDto>> GetUserQuizHistoryAsync(int userId)
+    {
+        // Fetch user quiz attempts from the repository
+        var userQuizAttempts = await _quizRepository.GetUserQuizAttemptsAsync(userId);
+
+        // Map the data to the DTO
+        return userQuizAttempts.Select(attempt => new UserQuizHistoryDto
+        {
+            AttemptId = attempt.Id,
+            QuizId = attempt.Quizid,
+            QuizTitle = attempt.Quiz.Title,
+            Score = attempt.Score,
+            TimeSpent = attempt.Timespent,
+            StartedAt = attempt.Startedat,
+            EndedAt = attempt.Endedat,
+            IsSubmitted = attempt.Issubmitted,
+            CategoryId = attempt.Categoryid,
+            CategoryName = attempt.Category?.Name,
+            UserAnswers = attempt.Useranswers.Select(answer => new UserAnswerDto
+            {
+                QuestionId = answer.Questionid,
+                QuestionText = answer.Question.Text,
+                OptionId = answer.Optionid,
+                OptionText = answer.Option.Text,
+                IsCorrect = answer.Iscorrect
+            }).ToList()
+        }).ToList();
+    }
+
 }
 

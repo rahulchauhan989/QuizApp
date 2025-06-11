@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using quiz.Domain.ViewModels;
@@ -19,6 +18,8 @@ public class QuizController : ControllerBase
         _logger = logger;
     }
 
+    #region Quiz Management
+
     [HttpPost("create-quiz")]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizDto dto)
     {
@@ -34,7 +35,78 @@ public class QuizController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while creating quiz.");
-            return StatusCode(500, "An internal server error occurred: ");
+            return StatusCode(500, "An internal server error occurred.");
+        }
+    }
+
+    [HttpPost("create-from-existing-questions")]
+    public async Task<IActionResult> CreateQuizFromExistingQuestions([FromBody] CreateQuizFromExistingQuestionsDto dto)
+    {
+        try
+        {
+            if (dto.QuestionIds == null || !dto.QuestionIds.Any())
+                return BadRequest("At least one question must be selected.");
+
+            var validatingResult = await _quizService.ValidateQuizFromExistingQuestions(dto);
+
+            if (!validatingResult.IsValid)
+                return BadRequest(validatingResult.ErrorMessage);
+
+            var createdQuiz = await _quizService.CreateQuizFromExistingQuestionsAsync(dto);
+            return Ok(createdQuiz); // Returns Quiz DTO
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while creating quiz from existing questions.");
+            return StatusCode(500, "An internal server error occurred.");
+        }
+    }
+
+    [HttpPost("list")]
+    public async Task<IActionResult> GetQuizzes([FromBody] QuizFilterDto filter)
+    {
+        try
+        {
+            if (filter == null)
+                return BadRequest("Filter data is required.");
+
+            var validationResult = await _quizService.ValidateQuizFilterAsync(filter);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
+            var quizzes = await _quizService.GetFilteredQuizzesAsync(filter);
+            return Ok(quizzes); // List<QuizListDto>
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while validating quiz filter.");
+            return StatusCode(500, "An internal server error occurred during validation.");
+        }
+    }
+
+    #endregion
+
+    #region Question Management
+
+    [HttpPost("create-question")]
+    public async Task<IActionResult> CreateQuestion([FromBody] QuestionCreateDto dto)
+    {
+        try
+        {
+            if (dto == null)
+                return BadRequest("Question data is required.");
+
+            var validationResult = await _quizService.ValidateQuestionAsync(dto);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
+            var createdQuestion = await _quizService.CreateQuestionAsync(dto);
+            return Ok(createdQuestion); // Returns Question DTO
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while creating question.");
+            return StatusCode(500, "An internal server error occurred.");
         }
     }
 
@@ -67,60 +139,38 @@ public class QuizController : ControllerBase
         }
     }
 
-    [HttpPost("create-question")]
-    public async Task<IActionResult> CreateQuestion([FromBody] QuestionCreateDto dto)
+    [HttpGet("{quizId}/random-question/{count}")]
+    public async Task<IActionResult> GetRandomQuestionByQuizId(int quizId, int count)
     {
         try
         {
-            if (dto == null)
-                return BadRequest("Question data is required.");
+            if (quizId <= 0)
+                return BadRequest("Invalid Quiz ID.");
 
+            if (count <= 0)
+                return BadRequest("Count must be greater than zero.");
 
-            var validationResult = await _quizService.ValidateQuestionAsync(dto);
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+            var quizExists = await _quizService.IsQuizExistsAsync(quizId);
+            if (!quizExists)
+                return NotFound($"Quiz with ID {quizId} does not exist.");
 
-            var createdQuestion = await _quizService.CreateQuestionAsync(dto);
-            return Ok(createdQuestion); // Returns Question DTO
+            var availableQuestions = await _quizService.GetQuestionCountByQuizIdAsync(quizId);
+            if (availableQuestions < count)
+                return BadRequest($"Not enough questions available in quiz {quizId}. Available: {availableQuestions}, Requested: {count}");
+
+            var questions = await _quizService.GetRandomQuestionsByQuizIdAsync(quizId, count);
+            return Ok(questions); // Returns List<QuestionDto>
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while creating question.");
+            _logger.LogError(ex, "Error occurred while fetching random questions.");
             return StatusCode(500, "An internal server error occurred.");
         }
     }
 
-    [HttpPost("list")]
-    public async Task<IActionResult> GetQuizzes([FromBody] QuizFilterDto filter)
-    {
-        try
-        {
-            if (filter == null)
-                return BadRequest("Filter data is required.");
+    #endregion
 
-            var validationResult = await _quizService.ValidateQuizFilterAsync(filter);
-            if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
-
-            var quizzes = await _quizService.GetFilteredQuizzesAsync(filter);
-            return Ok(quizzes); // List<QuizListDto>
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error occurred while validating quiz filter.");
-            return StatusCode(500, "An internal server error occurred during validation.");
-        }
-    }
-
-    // [HttpPost("submit-attempt")]
-    // public async Task<IActionResult> SubmitAttempt([FromBody] SubmitQuizAttemptDto dto)
-    // {
-    //     if (dto == null || dto.Answers == null || dto.Answers.Count == 0)
-    //         return BadRequest("Invalid attempt data.");
-
-    //     var result = await _quizService.SubmitQuizAttemptAsync(dto);
-    //     return Ok(result); // returns Userquizattempt
-    // }
+    #region Quiz Submission
 
     [HttpPost("submit")]
     public async Task<IActionResult> SubmitQuiz([FromBody] SubmitQuizRequest request)
@@ -151,19 +201,10 @@ public class QuizController : ControllerBase
             if (quiz == null)
                 return NotFound($"Quiz with ID {request.QuizId} does not exist.");
 
-            if (quiz.Enddate > request.EndedAt)
-                return BadRequest($"Quiz has ended on {quiz.Enddate}. You cannot submit answers after this.");
-
             if (quiz.Durationminutes.HasValue &&
                (request.EndedAt - request.StartedAt).TotalMinutes > quiz.Durationminutes.Value)
             {
                 return BadRequest($"Quiz duration exceeded. Allowed duration is {quiz.Durationminutes} minutes.");
-            }
-
-            if (quiz.Startdate.HasValue &&
-               request.StartedAt < quiz.Startdate.Value)
-            {
-                return BadRequest($"Quiz has not started yet. Start date is {quiz.Startdate}.");
             }
 
             var score = await _quizService.SubmitQuizAsync(request);
@@ -175,4 +216,28 @@ public class QuizController : ControllerBase
         }
     }
 
+    #endregion
+
+    #region User Quiz History
+
+    [HttpGet("user/{userId}/quiz-history")]
+    public async Task<IActionResult> GetUserQuizHistory(int userId)
+    {
+        try
+        {
+            var quizHistory = await _quizService.GetUserQuizHistoryAsync(userId);
+
+            if (quizHistory == null || !quizHistory.Any())
+                return NotFound($"No quiz history found for user with ID {userId}.");
+
+            return Ok(quizHistory);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while fetching user quiz history.");
+            return StatusCode(500, "An internal server error occurred.");
+        }
+    }
+
+    #endregion
 }

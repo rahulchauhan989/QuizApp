@@ -22,6 +22,44 @@ public class QuizRepository : IQuizRepository
         return quiz;
     }
 
+    // public async Task AddQuestionToQuizAsync(Quiz quiz, Question question)
+    // {
+    //     // Add the question to the database if it doesn't already exist
+    //     if (question.Id == 0)
+    //     {
+    //         _context.Questions.Add(question);
+    //         await _context.SaveChangesAsync();
+    //     }
+
+    //     // Associate the question with the quiz in the QuizQuestions table
+    //     var quizQuestion = new
+    //     {
+    //         QuizId = quiz.Id,
+    //         QuestionId = question.Id
+    //     };
+
+    //     await _context.Database.ExecuteSqlRawAsync(
+    //         "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
+    //         quizQuestion.QuizId, quizQuestion.QuestionId
+    //     );
+    // }
+
+    public async Task AddQuestionToQuizAsync(Quiz quiz, Question question)
+    {
+        // Add the question to the database if it doesn't already exist
+        if (question.Id == 0)
+        {
+            _context.Questions.Add(question);
+            await _context.SaveChangesAsync();
+        }
+
+        // Use raw SQL to insert into the QuizQuestions table
+        await _context.Database.ExecuteSqlRawAsync(
+            "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
+            quiz.Id, question.Id
+        );
+    }
+
     public async Task<IEnumerable<Question>> GetRandomQuestionsAsync(int Categoryid, int count)
     {
         return await _context.Questions
@@ -35,11 +73,82 @@ public class QuizRepository : IQuizRepository
             .ToListAsync();
     }
 
+    // public async Task<IEnumerable<Question>> GetRandomQuestionsByQuizIdAsync(int quizId, int count)
+    // {
+    //     return await _context.Quizquestions
+    //         .Where(qq => qq.Quizid == quizId)
+    //         .Join(_context.Questions, qq => qq.Questionid, q => q.Id, (qq, q) => q)
+    //         .Include(q => q.Options)
+    //         .OrderBy(q => EF.Functions.Random()) // PostgreSQL's RANDOM() function
+    //         .Take(count)
+    //         .ToListAsync();
+    // }
+
+    public async Task<IEnumerable<Question>> GetRandomQuestionsByQuizIdAsync(int quizId, int count)
+    {
+        return await _context.Questions
+            .Where(q => _context.Quizquestions
+                .Where(qq => qq.Quizid == quizId)
+                .Select(qq => qq.Questionid)
+                .Contains(q.Id)) // Filter questions based on QuizQuestions
+            .Include(q => q.Options) // Include navigation property
+            .OrderBy(q => EF.Functions.Random()) // Randomize the order
+            .Take(count)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetQuestionCountByQuizIdAsync(int quizId)
+    {
+        return await _context.Quizquestions
+            .Where(qq => qq.Quizid == quizId)
+            .CountAsync();
+    }
+
+    public async Task<bool> IsQuizExistsAsync(int quizId)
+    {
+        return await _context.Quizzes.AnyAsync(q => q.Id == quizId);
+    }
+
     public async Task<Question> CreateQuestionAsync(Question question)
     {
         _context.Questions.Add(question);
         await _context.SaveChangesAsync();
         return question;
+    }
+
+
+    // For Now As We Do not declaring QuizId So it's not used may be use in future
+    // public async Task AddQuestionToQuizAsync(int quizId, int questionId)
+    // {
+    //     var quizQuestion = new
+    //     {
+    //         QuizId = quizId,
+    //         QuestionId = questionId
+    //     };
+
+    //     await _context.Database.ExecuteSqlRawAsync(
+    //         "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
+    //         quizQuestion.QuizId, quizQuestion.QuestionId
+    //     );
+    // }
+
+    // public async Task<IEnumerable<Question>> GetQuestionsByQuizIdAsync(int quizId)
+    // {
+    //     return await _context.Quizquestions
+    //         .Where(qq => qq.Quizid == quizId)
+    //         .Join(_context.Questions, qq => qq.Questionid, q => q.Id, (qq, q) => q)
+    //         .Include(q => q.Options) // Include options for each question
+    //         .ToListAsync();
+    // }
+    public async Task<IEnumerable<Question>> GetQuestionsByQuizIdAsync(int quizId)
+    {
+        return await _context.Questions
+            .Where(q => _context.Quizquestions
+                .Where(qq => qq.Quizid == quizId)
+                .Select(qq => qq.Questionid)
+                .Contains(q.Id)) // Filter questions based on QuizQuestions
+            .Include(q => q.Options) // Include options for each question
+            .ToListAsync();
     }
 
     public async Task<int> GetQuestionCountByCategoryAsync(int Categoryid)
@@ -169,7 +278,7 @@ public class QuizRepository : IQuizRepository
             .Where(q => q.Id == questionId)
             .Select(q => q.Marks).FirstOrDefaultAsync() ?? 0;
 
-            return marks;
+        return marks;
     }
 
     public async Task<Quiz> GetQuizByIdAsync(int quizId)
@@ -186,5 +295,42 @@ public class QuizRepository : IQuizRepository
         return quiz;
     }
 
+    public async Task<IEnumerable<Question>> GetQuestionsByIdsAsync(List<int> questionIds)
+    {
+        return await _context.Questions
+            .Where(q => questionIds.Contains(q.Id))
+            .Include(q => q.Options) // Include options for each question
+            .ToListAsync();
+    }
+
+    public async Task AddQuestionToQuiz(Quiz quiz, Question question)
+    {
+        // Associate the question with the quiz in the QuizQuestions table
+        var quizQuestion = new Quizquestion
+        {
+            Quizid = quiz.Id,
+            Questionid = question.Id
+        };
+
+        // _context.Quizquestions.Add(quizQuestion);
+        await _context.Database.ExecuteSqlRawAsync(
+          "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
+          quizQuestion.Quizid, quizQuestion.Questionid
+      );
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<List<Userquizattempt>> GetUserQuizAttemptsAsync(int userId)
+    {
+        return await _context.Userquizattempts
+            .Where(attempt => attempt.Userid == userId)
+            .Include(attempt => attempt.Quiz) // Include quiz details
+            .Include(attempt => attempt.Category) // Include category details
+            .Include(attempt => attempt.Useranswers) // Include user answers
+                .ThenInclude(answer => answer.Question) // Include question details
+            .Include(attempt => attempt.Useranswers)
+                .ThenInclude(answer => answer.Option) // Include option details
+            .ToListAsync();
+    }
 
 }

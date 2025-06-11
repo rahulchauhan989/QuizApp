@@ -1,23 +1,38 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace quiz.Domain.ViewModels;
 
 public class CreateQuizDto
 {
-    public string? Title { get; set; }   //
+    [Required(ErrorMessage = "Title is required.")]
+    [MaxLength(100, ErrorMessage = "Title cannot exceed 100 characters.")]
+    public string? Title { get; set; }   
+    [MaxLength(200, ErrorMessage = "Description cannot exceed 200 characters.")]
     public string? Description { get; set; }
+    [Required(ErrorMessage = "Total marks are required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Total marks must be greater than 0.")]
     public int Totalmarks { get; set; }
+
+    [Required(ErrorMessage = "Duration in minutes is required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Duration must be greater than 0 minutes.")]
     public int? Durationminutes { get; set; }
     public bool? Ispublic { get; set; }
-    public DateTime? Startdate { get; set; }
-    public DateTime? Enddate { get; set; }
+    // public DateTime? Startdate { get; set; }
+    // public DateTime? Enddate { get; set; }
+    [Required(ErrorMessage = "Category ID is required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0.")]
     public int Categoryid { get; set; }
     public int Createdby { get; set; }
-    public List<int>? TagIds { get; set; } // If we want to add tags by ID
+    public List<int>? TagIds { get; set; } 
     public List<CreateQuestionDto>? Questions { get; set; } 
 }
 
 public class CreateQuestionDto
 {
-    public string? Text { get; set; }  //
+    [Required(ErrorMessage = "Quetion Text is required.")]
+    public string? Text { get; set; } 
+
+    [Required(ErrorMessage = "Marks are required.")] 
     public int Marks { get; set; }
     public string? Difficulty { get; set; }
     public List<CreateOptionDto>? Options { get; set; }
@@ -25,6 +40,7 @@ public class CreateQuestionDto
 
 public class CreateOptionDto
 {
-    public string? Text { get; set; }  //
+    [Required(ErrorMessage = "Option Text is required.")]
+    public string? Text { get; set; }  
     public bool IsCorrect { get; set; }
 }
