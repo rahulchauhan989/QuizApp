@@ -1,20 +1,34 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace quiz.Domain.ViewModels;
 
 public class QuestionCreateDto
 {
     // public int QuizId { get; set; }
 
+    [Required(ErrorMessage = "Categoryid is required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Categoryid must be greater than 0.")]
     public int Categoryid { get; set; }
-    public string? Text { get; set; }  //
-    public int Marks { get; set; } = 1;
-    public string? Difficulty { get; set; }  //
 
-    public List<OptionCreateDto>? Options { get; set; }  //
+    [Required(ErrorMessage = "Question Text is required.")]
+    [MaxLength(200, ErrorMessage = "Question text cannot exceed 200 characters.")]
+    public string? Text { get; set; }  
+
+    [Required(ErrorMessage = "Marks are required.")]
+    [Range(1, 4, ErrorMessage = "Marks must be between 1 and 4")]
+    public int Marks { get; set; } = 1;
+
+    [MaxLength(10, ErrorMessage = "Difficulty cannot exceed 10 characters.")]
+    public string? Difficulty { get; set; }  
+
+    public List<OptionCreateDto>? Options { get; set; }  
 }
 
 public class OptionCreateDto
 {
-    public string? Text { get; set; }  //
+    [Required(ErrorMessage = "Option Text is required.")]
+    [MaxLength(100, ErrorMessage = "Option text cannot exceed 100 characters.")]
+    public string? Text { get; set; }  
     public bool IsCorrect { get; set; }
 }
 

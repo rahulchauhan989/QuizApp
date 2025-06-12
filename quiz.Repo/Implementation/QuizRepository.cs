@@ -22,28 +22,6 @@ public class QuizRepository : IQuizRepository
         return quiz;
     }
 
-    // public async Task AddQuestionToQuizAsync(Quiz quiz, Question question)
-    // {
-    //     // Add the question to the database if it doesn't already exist
-    //     if (question.Id == 0)
-    //     {
-    //         _context.Questions.Add(question);
-    //         await _context.SaveChangesAsync();
-    //     }
-
-    //     // Associate the question with the quiz in the QuizQuestions table
-    //     var quizQuestion = new
-    //     {
-    //         QuizId = quiz.Id,
-    //         QuestionId = question.Id
-    //     };
-
-    //     await _context.Database.ExecuteSqlRawAsync(
-    //         "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
-    //         quizQuestion.QuizId, quizQuestion.QuestionId
-    //     );
-    // }
-
     public async Task AddQuestionToQuizAsync(Quiz quiz, Question question)
     {
         // Add the question to the database if it doesn't already exist
@@ -72,17 +50,6 @@ public class QuizRepository : IQuizRepository
             .Take(count)
             .ToListAsync();
     }
-
-    // public async Task<IEnumerable<Question>> GetRandomQuestionsByQuizIdAsync(int quizId, int count)
-    // {
-    //     return await _context.Quizquestions
-    //         .Where(qq => qq.Quizid == quizId)
-    //         .Join(_context.Questions, qq => qq.Questionid, q => q.Id, (qq, q) => q)
-    //         .Include(q => q.Options)
-    //         .OrderBy(q => EF.Functions.Random()) // PostgreSQL's RANDOM() function
-    //         .Take(count)
-    //         .ToListAsync();
-    // }
 
     public async Task<IEnumerable<Question>> GetRandomQuestionsByQuizIdAsync(int quizId, int count)
     {

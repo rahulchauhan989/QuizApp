@@ -169,6 +169,8 @@ D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\WebApiQuiz.dll
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\WebApiQuiz.pdb
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Azure.Core.dll
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Azure.Identity.dll
+D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\BCrypt.Net-Next.dll
+D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Microsoft.AspNetCore.OpenApi.dll
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Microsoft.Bcl.AsyncInterfaces.dll
 D:\Quize-App\WebApiQuiz\bin\Debug\net7.0\Microsoft.Data.SqlClient.dll

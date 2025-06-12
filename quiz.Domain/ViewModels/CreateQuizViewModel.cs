@@ -2,7 +2,7 @@ namespace quiz.Domain.ViewModels;
 
 public class CreateQuizViewModel
 {
-      public int Id { get; set; }
+     public int Id { get; set; }
 
     public string Title { get; set; } = null!;
 

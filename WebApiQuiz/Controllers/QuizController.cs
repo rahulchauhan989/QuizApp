@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging;
 using quiz.Domain.ViewModels;
 using Quiz.Services.Interface;
@@ -21,8 +23,11 @@ public class QuizController : ControllerBase
     #region Quiz Management
 
     [HttpPost("create-quiz")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
             var validationResult = await _quizService.ValidateQuizAsync(dto);
@@ -40,10 +45,13 @@ public class QuizController : ControllerBase
     }
 
     [HttpPost("create-from-existing-questions")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuizFromExistingQuestions([FromBody] CreateQuizFromExistingQuestionsDto dto)
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             if (dto.QuestionIds == null || !dto.QuestionIds.Any())
                 return BadRequest("At least one question must be selected.");
 
@@ -63,10 +71,13 @@ public class QuizController : ControllerBase
     }
 
     [HttpPost("list")]
+    [Authorize(Roles = "Admin, User")] // Allow both Admins and Users to view quizzes
     public async Task<IActionResult> GetQuizzes([FromBody] QuizFilterDto filter)
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             if (filter == null)
                 return BadRequest("Filter data is required.");
 
@@ -89,10 +100,13 @@ public class QuizController : ControllerBase
     #region Question Management
 
     [HttpPost("create-question")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuestion([FromBody] QuestionCreateDto dto)
     {
         try
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
             if (dto == null)
                 return BadRequest("Question data is required.");
 
@@ -111,6 +125,7 @@ public class QuizController : ControllerBase
     }
 
     [HttpGet("{categoryId}/random-questions/{count}")]
+    [Authorize(Roles = "Admin, User")] // Allow both Admins and Users to fetch random questions
     public async Task<IActionResult> GetRandomQuestions(int categoryId, int count)
     {
         try
@@ -140,6 +155,7 @@ public class QuizController : ControllerBase
     }
 
     [HttpGet("{quizId}/random-question/{count}")]
+    [Authorize(Roles = "Admin, User")] // Allow both Admins and Users to fetch random questions by quiz ID
     public async Task<IActionResult> GetRandomQuestionByQuizId(int quizId, int count)
     {
         try
@@ -173,6 +189,7 @@ public class QuizController : ControllerBase
     #region Quiz Submission
 
     [HttpPost("submit")]
+    [Authorize] // Only authenticated users can submit quizzes
     public async Task<IActionResult> SubmitQuiz([FromBody] SubmitQuizRequest request)
     {
         try
@@ -221,6 +238,7 @@ public class QuizController : ControllerBase
     #region User Quiz History
 
     [HttpGet("user/{userId}/quiz-history")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetUserQuizHistory(int userId)
     {
         try

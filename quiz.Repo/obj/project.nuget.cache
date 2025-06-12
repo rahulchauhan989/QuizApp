@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "DjjO0srgvIzT2i/Xv47M9xilzjVh0Frb7+CXSiSiVeIt/RGD0g0p+d5t9jS0uN/14aPS+0eMLNeY48TFdTEu2Q==",
+  "dgSpecHash": "WRUhFGfWiJuOLkPKzZBZu9zHpL8bSEAwxhLRkWTmai2ibO7L8gqqsxEPRwsPOHNpQshKrtRY+zJeQzirq/Ukzg==",
   "success": true,
   "projectFilePath": "D:\\Quize-App\\quiz.Repo\\quiz.Repo.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pca88\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\pca88\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.data.sqlclient\\5.1.5\\microsoft.data.sqlclient.5.1.5.nupkg.sha512",

@@ -3,6 +3,9 @@
     <ProjectReference Include="..\quiz.Domain\quiz.Domain.csproj" />
     <ProjectReference Include="..\quiz.Repo\quiz.Repo.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

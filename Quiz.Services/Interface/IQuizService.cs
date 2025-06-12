@@ -34,7 +34,6 @@ public interface IQuizService
 
     Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter);
 
-    // Task<Userquizattempt> SubmitQuizAttemptAsync(SubmitQuizAttemptDto dto);
 
     Task<int> SubmitQuizAsync(SubmitQuizRequest request);
 

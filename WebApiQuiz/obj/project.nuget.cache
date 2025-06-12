@@ -1,11 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "3AymA6oCAwQB63dZhSMxnLnOZ0JZk86Uz1oEhX/GtMXjyGtSp1mor/rUJdYbYsK+wpAIwNUllSOR4GTPNYYG0A==",
+  "dgSpecHash": "zT7afhDxR22HYD3kwEtLaWB7p2irev7oBHPR6k2b7W+1z9pS4FKWKTuMZjuY4XGey05ypDovPTMVvjUZLtA64w==",
   "success": true,
   "projectFilePath": "D:\\Quize-App\\WebApiQuiz\\WebApiQuiz.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\pca88\\.nuget\\packages\\azure.core\\1.35.0\\azure.core.1.35.0.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\azure.identity\\1.10.3\\azure.identity.1.10.3.nupkg.sha512",
+    "C:\\Users\\pca88\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
+    "C:\\Users\\pca88\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.20\\microsoft.aspnetcore.authentication.jwtbearer.7.0.20.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.20\\microsoft.aspnetcore.openapi.7.0.20.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\pca88\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

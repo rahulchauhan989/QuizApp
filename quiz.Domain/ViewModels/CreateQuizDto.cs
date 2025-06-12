@@ -30,11 +30,15 @@ public class CreateQuizDto
 public class CreateQuestionDto
 {
     [Required(ErrorMessage = "Quetion Text is required.")]
+    [MaxLength(500, ErrorMessage = "Question text cannot exceed 500 characters.")]
     public string? Text { get; set; } 
 
     [Required(ErrorMessage = "Marks are required.")] 
+    [Range(1, 4, ErrorMessage = "Marks must be between 1 and 4")]
     public int Marks { get; set; }
     public string? Difficulty { get; set; }
+    
+    
     public List<CreateOptionDto>? Options { get; set; }
 }
 
