@@ -184,9 +184,67 @@ public class QuizController : ControllerBase
         }
     }
 
+
     #endregion
 
     #region Quiz Submission
+
+
+    [HttpPost("start-quiz")]
+    [Authorize] // Only authenticated users can start a quiz
+    public async Task<IActionResult> StartQuiz([FromBody] StartQuizRequest request)
+    {
+        try
+        {
+            // Validate quiz ID
+            var quiz = await _quizService.GetQuizByIdAsync(request.QuizId);
+            if (quiz == null || quiz.Isdeleted == true)
+                return NotFound($"Quiz with ID {request.QuizId} does not exist or is deleted.");
+
+            // Check if quiz is public or active
+            if (quiz.Ispublic != true)
+                return BadRequest("This quiz is not public or active.");
+
+            // Check for existing attempts
+            bool existingAttempt = await _quizService.CheckExistingAttemptAsync(request.UserId, request.QuizId, request.categoryId);
+            if (existingAttempt)
+                return BadRequest("You have already started this quiz or May be Submitted Also");
+
+            // Fetch questions for the quiz
+            var questions = await _quizService.GetQuestionsForQuizAsync(request.QuizId);
+            if (questions == null || !questions.Any())
+                return NotFound("No questions found for this quiz.");
+
+            // Start the quiz
+            var attemptId = await _quizService.StartQuizAsync(request.UserId, request.QuizId, request.categoryId);
+
+            // Populate the SubmitQuizRequest view model
+            var response = new SubmitQuizRequest
+            {
+                UserId = request.UserId,
+                QuizId = request.QuizId,
+                categoryId = request.categoryId,
+                Answers = questions.Select(q => new SubmittedAnswer
+                {
+                    QuestionId = q.Id,
+                    OptionId = 0
+                }).ToList(),
+                StartedAt = DateTime.UtcNow,
+                EndedAt = DateTime.UtcNow.AddMinutes(quiz.Durationminutes ?? 0)
+            };
+
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while starting quiz.");
+            return StatusCode(500, "An internal server error occurred.");
+        }
+    }
 
     [HttpPost("submit")]
     [Authorize] // Only authenticated users can submit quizzes

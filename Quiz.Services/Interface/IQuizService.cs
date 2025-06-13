@@ -24,8 +24,6 @@ public interface IQuizService
 
     Task<bool> IsCategoryExistsAsync(int Categoryid);
 
-    Task<bool> IsQuizTitleExistsAsync(string title, int quizId);
-
     Task<ValidationResult> ValidateQuizAsync(CreateQuizDto dto);
 
     Task<ValidationResult> ValidateQuestionAsync(QuestionCreateDto dto);
@@ -43,9 +41,21 @@ public interface IQuizService
 
     Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId);
 
+    // Task<quiz.Domain.DataModels.Quiz> GetQuizById(int quizId);  
+
     Task<QuizDto> CreateQuizFromExistingQuestionsAsync(CreateQuizFromExistingQuestionsDto dto);
 
     Task<ValidationResult> ValidateQuizFromExistingQuestions(CreateQuizFromExistingQuestionsDto dto);
 
     Task<List<UserQuizHistoryDto>> GetUserQuizHistoryAsync(int userId);
+
+    Task<IEnumerable<QuestionDto>> GetQuestionsForQuizAsync(int quizId);
+
+///
+    Task<int> StartQuizAsync(int userId, int quizId, int categoryId);
+    Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync();
+    Task SubmitQuizAutomaticallyAsync(int attemptId);
+
+    Task<bool> CheckExistingAttemptAsync(int userId, int quizId, int categoryId);
+
 }

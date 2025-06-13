@@ -20,6 +20,8 @@ builder.Services.AddDbContext<QuiZappDbContext>(options =>
 
 // AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<IQuizRepository, QuizRepository>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
@@ -46,6 +48,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)  //Ad
 // Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+/// Add a hosted service for quiz submission
+builder.Services.AddHostedService<QuizSubmissionService>();
 
 // Add Swagger for API documentation
 builder.Services.AddSwaggerGen(options => //Configures Swagger to support JWT Bearer authentication.

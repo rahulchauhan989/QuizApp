@@ -90,11 +90,31 @@ public class LoginService : ILoginService
             Fullname = request.Name!,
             Email = request.Email,
             Passwordhash = hashedPassword,
-            Role =  "User" // Default "User" 
+            Role = "User" // Default "User" 
         };
 
         // Save the user to the repository
         return await _Loginrepository.RegisterUserAsync(newUser);
+    }
+
+    public int ExtractUserIdFromToken(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+        {
+            throw new ArgumentException("Token cannot be null or empty.", nameof(token));
+        }
+
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+
+        // Extract the user ID from the token claims
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+        {
+            throw new InvalidOperationException("User ID not found in token.");
+        }
+
+        return userId;
     }
 
 }

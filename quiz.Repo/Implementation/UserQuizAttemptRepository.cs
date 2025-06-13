@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using quiz.Domain.DataContext;
 using quiz.Domain.DataModels;
+using quiz.Domain.ViewModels;
 using quiz.Repo.Interface;
 
 namespace quiz.Repo.Implementation;
@@ -17,11 +18,18 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
     public async Task<Userquizattempt?> GetAttemptByUserAndQuizAsync(int userId, int quizId, int categoryId)
     {
         return await _context.Userquizattempts
-            .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId && a.Categoryid == categoryId);
+            .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId );
     }
 
     public async Task<int> CreateAttemptAsync(Userquizattempt attempt)
     {
+        // Convert DateTime properties to Unspecified
+        if (attempt.Startedat.HasValue)
+            attempt.Startedat = DateTime.SpecifyKind(attempt.Startedat.Value, DateTimeKind.Unspecified);
+
+        if (attempt.Endedat.HasValue)
+            attempt.Endedat = DateTime.SpecifyKind(attempt.Endedat.Value, DateTimeKind.Unspecified);
+
         _context.Userquizattempts.Add(attempt);
         await _context.SaveChangesAsync();
         return attempt.Id;
@@ -29,8 +37,60 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 
     public async Task UpdateAttemptAsync(Userquizattempt attempt)
     {
+        // Convert DateTime properties to Unspecified
+        if (attempt.Startedat.HasValue)
+            attempt.Startedat = DateTime.SpecifyKind(attempt.Startedat.Value, DateTimeKind.Unspecified);
+
+        if (attempt.Endedat.HasValue)
+            attempt.Endedat = DateTime.SpecifyKind(attempt.Endedat.Value, DateTimeKind.Unspecified);
+
         _context.Userquizattempts.Update(attempt);
         await _context.SaveChangesAsync();
+    }
+
+    //   public async Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync()
+    // {
+    //     // Fetch active quizzes that are not yet submitted
+    //     return await _context.Userquizattempts
+    //         .Where(a => a.Issubmitted.GetValueOrDefault() == false && a.Startedat.HasValue)
+    //         .Select(a => new ActiveQuiz
+    //         {
+    //             AttemptId = a.Id,
+    //             StartedAt = a.Startedat!.Value,
+    //             DurationMinutes = a.Quiz.Durationminutes
+    //         })
+    //         .ToListAsync();
+    // }
+
+    public async Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync()
+    {
+        // Fetch data from the database first
+        var attempts = await _context.Userquizattempts
+            .Where(a => a.Issubmitted == false && a.Startedat.HasValue)
+            .Include(a => a.Quiz)
+            .ToListAsync();
+
+        // Apply the projection in memory
+        return attempts.Select(a => new ActiveQuiz
+        {
+            AttemptId = a.Id,
+            StartedAt = a.Startedat!.Value,   ///
+            DurationMinutes = a.Quiz?.Durationminutes
+        }).ToList();
+    }
+
+    public async Task<Userquizattempt?> GetAttemptByIdAsync(int attemptId)
+    {
+        // Fetch a specific quiz attempt by ID
+        return await _context.Userquizattempts
+            .Include(a => a.Useranswers) // Include related user answers
+            .FirstOrDefaultAsync(a => a.Id == attemptId);
+    }
+
+    public async Task<Userquizattempt?> GetAttemptByUserAndQuizAsync(int userId, int quizId)
+    {
+        return await _context.Userquizattempts
+            .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId);
     }
 
 }

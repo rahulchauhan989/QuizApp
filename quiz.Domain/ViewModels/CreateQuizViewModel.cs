@@ -14,6 +14,8 @@ public class CreateQuizViewModel
 
     public bool? Ispublic { get; set; }
 
+    public bool? Isdeleted { get; set; }
+
     public DateTime? Startdate { get; set; }
 
     public DateTime? Enddate { get; set; }

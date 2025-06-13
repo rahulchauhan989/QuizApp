@@ -26,7 +26,7 @@ public interface IQuizRepository
 
     Task<bool> IsCategoryExistsAsync(int Categoryid);
 
-    Task<bool> IsQuizTitleExistsAsync(string title, int quizId);
+    Task<bool> IsQuizTitleExistsAsync(string title);
 
     Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter);
 

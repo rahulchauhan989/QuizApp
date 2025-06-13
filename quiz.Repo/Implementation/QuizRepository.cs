@@ -130,10 +130,10 @@ public class QuizRepository : IQuizRepository
             .AnyAsync(c => c.Id == Categoryid);
     }
 
-    public async Task<bool> IsQuizTitleExistsAsync(string title, int quizId)
+    public async Task<bool> IsQuizTitleExistsAsync(string title)
     {
         return await _context.Quizzes
-            .AnyAsync(q => q.Title == title && q.Id != quizId);
+            .AnyAsync(q => q.Title == title);
     }
 
     public async Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter)
@@ -252,7 +252,7 @@ public class QuizRepository : IQuizRepository
     {
         var quiz = await _context.Quizzes
             .Include(q => q.Category)
-            .FirstOrDefaultAsync(q => q.Id == quizId && !q.Isdeleted!.Value);
+            .FirstOrDefaultAsync(q => q.Id == quizId && q.Isdeleted==false);
 
         if (quiz == null)
         {

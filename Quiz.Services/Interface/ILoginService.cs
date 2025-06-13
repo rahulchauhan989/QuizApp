@@ -9,4 +9,6 @@ public interface ILoginService
     Task<string> GenerateToken(LoginModel request);
 
     Task<String> RegisterUserAsync(RegistrationViewModel request);
+
+    int ExtractUserIdFromToken(string token);
 }

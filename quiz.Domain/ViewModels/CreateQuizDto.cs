@@ -10,11 +10,11 @@ public class CreateQuizDto
     [MaxLength(200, ErrorMessage = "Description cannot exceed 200 characters.")]
     public string? Description { get; set; }
     [Required(ErrorMessage = "Total marks are required.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Total marks must be greater than 0.")]
+    [Range(1, 100, ErrorMessage = "Total marks must be between 1 and 100.")]
     public int Totalmarks { get; set; }
 
     [Required(ErrorMessage = "Duration in minutes is required.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Duration must be greater than 0 minutes.")]
+    [Range(1, 180, ErrorMessage = "Duration must be between 1 and 180 minutes.")]
     public int? Durationminutes { get; set; }
     public bool? Ispublic { get; set; }
     // public DateTime? Startdate { get; set; }
@@ -22,7 +22,7 @@ public class CreateQuizDto
     [Required(ErrorMessage = "Category ID is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0.")]
     public int Categoryid { get; set; }
-    public int Createdby { get; set; }
+    // public int Createdby { get; set; }
     public List<int>? TagIds { get; set; } 
     public List<CreateQuestionDto>? Questions { get; set; } 
 }
