@@ -13,6 +13,14 @@ public partial class Category
 
     public DateTime? Createdat { get; set; }
 
+    public bool? Isdeleted { get; set; }
+
+    public DateTime? Modifiedat { get; set; }
+
+    public int? Createdby { get; set; }
+
+    public int? Modifiedby { get; set; }
+
     public virtual ICollection<Question> Questions { get; set; } = new List<Question>();
 
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();

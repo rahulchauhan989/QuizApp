@@ -20,8 +20,6 @@ public interface IQuizRepository
 
     Task<Question> CreateQuestionAsync(Question question);
 
-    // Task AddQuestionToQuizAsync(int quizId, int questionId);
-
     Task<int> GetQuestionCountByCategoryAsync(int Categoryid);
 
     Task<bool> IsCategoryExistsAsync(int Categoryid);
@@ -29,8 +27,6 @@ public interface IQuizRepository
     Task<bool> IsQuizTitleExistsAsync(string title);
 
     Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter);
-
-    // Task<Userquizattempt> SubmitQuizAttemptAsync(SubmitQuizAttemptDto dto);
 
     Task<List<CorrectAnswerDto>> GetCorrectAnswersForQuizAsync(int categoryId);
 
@@ -43,5 +39,22 @@ public interface IQuizRepository
     Task<IEnumerable<Question>> GetQuestionsByIdsAsync(List<int> questionIds);
     Task AddQuestionToQuiz(Quiz quiz, Question question);
     Task<List<Userquizattempt>> GetUserQuizAttemptsAsync(int userId);
+
+    Task<Question?> GetQuestionByIdAsync(int questionId);
+    Task LinkExistingQuestionToQuizAsync(int quizId, int questionId);
+
+    Task UpdateQuizAsync(Quiz quiz);
+    Task SoftDeleteQuizAsync(int id);
+
+    Task<bool> RemoveQuestionFromQuizAsync(int quizId, int questionId);
+
+    //Question 
+
+    Task UpdateQuestionAsync(Question question);
+    Task RemoveOptionsByQuestionIdAsync(int questionId);
+
+    Task<int> GetQuizQuestionsMarksSumAsync(int quizId);
+
+
 
 }

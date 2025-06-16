@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quiz.Services.Interface;
+using quiz.Domain.ViewModels;
 
 public class QuizSubmissionService : BackgroundService
 {
@@ -55,6 +56,8 @@ public class QuizSubmissionService : BackgroundService
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
     }
+
+
 }
 
 

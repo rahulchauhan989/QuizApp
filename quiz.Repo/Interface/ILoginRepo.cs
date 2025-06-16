@@ -10,4 +10,6 @@ public interface ILoginRepo
     Task<User> GetUserByEmailAsync(string email);
 
     Task<string> RegisterUserAsync(User user);
+
+    Task<User?> GetUserByIdAsync(int userId);
 }

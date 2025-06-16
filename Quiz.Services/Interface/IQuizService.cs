@@ -5,57 +5,22 @@ namespace Quiz.Services.Interface;
 
 public interface IQuizService
 {
-    // Task<QuizDto> CreateQuizAsync(quiz.Domain.DataModels.Quiz quiz);
-
     Task<QuizDto> CreateQuizAsync(CreateQuizDto dto);
-    // Task<IEnumerable<Question>> GetRandomQuestionsAsync(int quizId, int count);
-
-    Task<List<QuestionDto>> GetRandomQuestionsAsync(int Categoryid, int count);
-
-    Task<List<QuestionDto>> GetRandomQuestionsByQuizIdAsync(int quizId, int count);
-
-    Task<int> GetQuestionCountByQuizIdAsync(int quizId);
-
-    Task<bool> IsQuizExistsAsync(int quizId);
-
-    Task<QuestionDto> CreateQuestionAsync(QuestionCreateDto dto);
-
-    Task<int> GetQuestionCountByCategoryAsync(int Categoryid);
-
-    Task<bool> IsCategoryExistsAsync(int Categoryid);
-
     Task<ValidationResult> ValidateQuizAsync(CreateQuizDto dto);
-
-    Task<ValidationResult> ValidateQuestionAsync(QuestionCreateDto dto);
-
-    Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter);
-
-    Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter);
-
-
-    Task<int> SubmitQuizAsync(SubmitQuizRequest request);
-
-    Task<int> GetTotalMarksAsync(SubmitQuizRequest request);
-
-    Task<int> GetQuetionsMarkByIdAsync(int questionId);
-
-    Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId);
-
-    // Task<quiz.Domain.DataModels.Quiz> GetQuizById(int quizId);  
-
     Task<QuizDto> CreateQuizFromExistingQuestionsAsync(CreateQuizFromExistingQuestionsDto dto);
-
     Task<ValidationResult> ValidateQuizFromExistingQuestions(CreateQuizFromExistingQuestionsDto dto);
-
-    Task<List<UserQuizHistoryDto>> GetUserQuizHistoryAsync(int userId);
-
-    Task<IEnumerable<QuestionDto>> GetQuestionsForQuizAsync(int quizId);
-
-///
-    Task<int> StartQuizAsync(int userId, int quizId, int categoryId);
     Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync();
     Task SubmitQuizAutomaticallyAsync(int attemptId);
-
-    Task<bool> CheckExistingAttemptAsync(int userId, int quizId, int categoryId);
-
+    Task<QuizDto> CreateQuizOnlyAsync(CreateQuizOnlyDto dto);
+    Task<ValidationResult> ValidateQuizForExistingQuestions(AddQuestionToQuizDto dto);
+    Task<ValidationResult> ValidateQuizAsyncForNewQuestions(AddQuestionToQuizDto dto);
+    Task<ValidationResult> validateQuiz(AddQuestionToQuizDto dto);
+    Task<List<QuestionDto>> AddExistingQuestionsToQuizAsync(int quizId, List<int> existingQuestionIds);
+    Task<QuestionDto> AddNewQuestionToQuizAsync(AddQuestionToQuizDto dto);
+    Task<QuizEditDto?> GetQuizForEditAsync(int quizId);
+    Task<QuizDto?> UpdateQuizAsync(UpdateQuizDto dto);
+    Task<bool> SoftDeleteQuizAsync(int id);
+    Task<bool> RemoveQuestionFromQuizAsync(RemoveQuestionFromQuizDto dto);
+    Task<ValidationResult> PublishQuizAsync(int quizId);
+    
 }

@@ -60,9 +60,16 @@ namespace quiz.Repo.Implementation
             _context.Users.Add(request);
             await _context.SaveChangesAsync();
 
-            return "User registered successfully."; 
+            return "User registered successfully.";
+        }
+
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            return await _context.Users.FindAsync(userId);
         }
 
     }
+    
+    
 
 }

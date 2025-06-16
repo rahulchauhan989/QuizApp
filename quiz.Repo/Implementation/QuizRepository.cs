@@ -22,6 +22,14 @@ public class QuizRepository : IQuizRepository
         return quiz;
     }
 
+    public async Task LinkExistingQuestionToQuizAsync(int quizId, int questionId)
+    {
+        await _context.Database.ExecuteSqlRawAsync(
+            "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
+            quizId, questionId
+        );
+    }
+
     public async Task AddQuestionToQuizAsync(Quiz quiz, Question question)
     {
         // Add the question to the database if it doesn't already exist
@@ -41,7 +49,7 @@ public class QuizRepository : IQuizRepository
     public async Task<IEnumerable<Question>> GetRandomQuestionsAsync(int Categoryid, int count)
     {
         return await _context.Questions
-            .Where(q => q.CategoryId == Categoryid)
+            .Where(q => q.CategoryId == Categoryid && q.Isdeleted == false) // Ensure the question is not deleted
             .Include(q => q.Options)
             //database generates a random GUID for each row in the query result and sorts the rows based on these GUIDs, For large datasets, this can be inefficient and slow.
             // .OrderBy(q => Guid.NewGuid()) // Randomize the order
@@ -64,6 +72,23 @@ public class QuizRepository : IQuizRepository
             .ToListAsync();
     }
 
+    public async Task UpdateQuizAsync(Quiz quiz)
+    {
+        _context.Quizzes.Update(quiz);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task SoftDeleteQuizAsync(int id)
+    {
+        var quiz = await _context.Quizzes.FindAsync(id);
+        if (quiz != null)
+        {
+            quiz.Isdeleted = true;
+            _context.Quizzes.Update(quiz);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task<int> GetQuestionCountByQuizIdAsync(int quizId)
     {
         return await _context.Quizquestions
@@ -82,31 +107,6 @@ public class QuizRepository : IQuizRepository
         await _context.SaveChangesAsync();
         return question;
     }
-
-
-    // For Now As We Do not declaring QuizId So it's not used may be use in future
-    // public async Task AddQuestionToQuizAsync(int quizId, int questionId)
-    // {
-    //     var quizQuestion = new
-    //     {
-    //         QuizId = quizId,
-    //         QuestionId = questionId
-    //     };
-
-    //     await _context.Database.ExecuteSqlRawAsync(
-    //         "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
-    //         quizQuestion.QuizId, quizQuestion.QuestionId
-    //     );
-    // }
-
-    // public async Task<IEnumerable<Question>> GetQuestionsByQuizIdAsync(int quizId)
-    // {
-    //     return await _context.Quizquestions
-    //         .Where(qq => qq.Quizid == quizId)
-    //         .Join(_context.Questions, qq => qq.Questionid, q => q.Id, (qq, q) => q)
-    //         .Include(q => q.Options) // Include options for each question
-    //         .ToListAsync();
-    // }
     public async Task<IEnumerable<Question>> GetQuestionsByQuizIdAsync(int quizId)
     {
         return await _context.Questions
@@ -164,61 +164,6 @@ public class QuizRepository : IQuizRepository
         }).ToListAsync();
     }
 
-    // public async Task<Userquizattempt> SubmitQuizAttemptAsync(SubmitQuizAttemptDto dto)
-    // {
-    //     //  Check if attempt already exists
-    //     var existingAttempt = await _context.Userquizattempts
-    //         .FirstOrDefaultAsync(x => x.Userid == dto.UserId && x.Quizid == dto.QuizId);
-
-    //     if (existingAttempt != null)
-    //     {
-    //         throw new InvalidOperationException("User has already submitted this quiz.");
-    //         // OR return existingAttempt; // if you want to return the previous attempt instead
-    //     }
-
-    //     var attempt = new Userquizattempt
-    //     {
-    //         Userid = dto.UserId,
-    //         Quizid = dto.QuizId,
-    //         Startedat = DateTime.UtcNow.ToLocalTime(),
-    //         Endedat = DateTime.UtcNow.ToLocalTime(),
-    //         Issubmitted = true
-    //     };
-
-    //     _context.Userquizattempts.Add(attempt);
-    //     await _context.SaveChangesAsync();
-
-    //     int totalScore = 0;
-
-    //     foreach (var answer in dto.Answers!)
-    //     {
-    //         var option = await _context.Options.FindAsync(answer.OptionId);
-    //         bool isCorrect = option?.Iscorrect ?? false;
-
-    //         if (isCorrect)
-    //         {
-    //             var question = await _context.Questions.FindAsync(answer.QuestionId);
-    //             totalScore += question?.Marks ?? 1;
-    //         }
-
-    //         var userAnswer = new Useranswer
-    //         {
-    //             Attemptid = attempt.Id,
-    //             Questionid = answer.QuestionId,
-    //             Optionid = answer.OptionId,
-    //             Iscorrect = isCorrect
-    //         };
-    //         _context.Useranswers.Add(userAnswer);
-    //     }
-
-    //     attempt.Score = totalScore;
-    //     attempt.Endedat = DateTime.UtcNow.ToLocalTime();
-
-    //     await _context.SaveChangesAsync();
-
-    //     return attempt;
-    // }
-
     public async Task<List<CorrectAnswerDto>> GetCorrectAnswersForQuizAsync(int categoryid)
     {
         return await (from question in _context.Questions
@@ -252,7 +197,7 @@ public class QuizRepository : IQuizRepository
     {
         var quiz = await _context.Quizzes
             .Include(q => q.Category)
-            .FirstOrDefaultAsync(q => q.Id == quizId && q.Isdeleted==false);
+            .FirstOrDefaultAsync(q => q.Id == quizId && q.Isdeleted == false);
 
         if (quiz == null)
         {
@@ -300,4 +245,41 @@ public class QuizRepository : IQuizRepository
             .ToListAsync();
     }
 
+    public async Task<int> GetQuizQuestionsMarksSumAsync(int quizId)
+    {
+        return (int)await _context.Quizquestions
+            .Where(qq => qq.Quizid == quizId)
+            .Join(_context.Questions, qq => qq.Questionid, q => q.Id, (qq, q) => q.Marks)
+            .SumAsync();
+    }
+
+    public async Task<bool> RemoveQuestionFromQuizAsync(int quizId, int questionId)
+    {
+        var affected = await _context.Database.ExecuteSqlRawAsync(
+            "DELETE FROM QuizQuestions WHERE QuizId = {0} AND QuestionId = {1}",
+            quizId, questionId
+        );
+        
+        return affected > 0;
+    }
+
+    public async Task<Question?> GetQuestionByIdAsync(int questionId)
+    {
+        return await _context.Questions
+            .Include(q => q.Options)
+            .FirstOrDefaultAsync(q => q.Id == questionId);
+    }
+
+    public async Task UpdateQuestionAsync(Question question)
+    {
+        _context.Questions.Update(question);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task RemoveOptionsByQuestionIdAsync(int questionId)
+    {
+        var options = _context.Options.Where(o => o.Questionid == questionId);
+        _context.Options.RemoveRange(options);
+        await _context.SaveChangesAsync();
+    }
 }

@@ -37,7 +37,7 @@ public class LoginService : ILoginService
     {
         var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);  //Metadata for signing the token like algo used
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);  //Metadata for signing the token like algo used (header)
 
         if (string.IsNullOrEmpty(request.Email))
         {
@@ -47,7 +47,7 @@ public class LoginService : ILoginService
 
         Console.WriteLine($"User Role is: {user.Role}");
 
-        var claims = new[]     // claims in Payload of JWT token
+        var claims = new[]     // claims in Payload of JWT token  (Payload)
         {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Email, user.Email),
@@ -116,5 +116,24 @@ public class LoginService : ILoginService
 
         return userId;
     }
+
+    public async Task<UserProfileViewModel?> GetCurrentUserProfileAsync(string token)
+    {
+        int userId = ExtractUserIdFromToken(token); // your JWT method
+
+        var user = await _Loginrepository.GetUserByIdAsync(userId);
+
+        if (user == null)
+            return null;
+
+        return new UserProfileViewModel
+        {
+            Id = user.Id,
+            Fullname = user.Fullname,
+            Email = user.Email,
+            Role = user.Role
+        };
+    }
+
 
 }

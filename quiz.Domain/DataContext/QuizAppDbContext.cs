@@ -55,7 +55,15 @@ public partial class QuiZappDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdat");
+            entity.Property(e => e.Createdby).HasColumnName("createdby");
             entity.Property(e => e.Description).HasColumnName("description");
+            entity.Property(e => e.Isdeleted)
+                .HasDefaultValueSql("false")
+                .HasColumnName("isdeleted");
+            entity.Property(e => e.Modifiedat)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("modifiedat");
+            entity.Property(e => e.Modifiedby).HasColumnName("modifiedby");
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .HasColumnName("name");
@@ -94,6 +102,7 @@ public partial class QuiZappDbContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("createdat");
+            entity.Property(e => e.Createdby).HasColumnName("createdby");
             entity.Property(e => e.Difficulty)
                 .HasMaxLength(20)
                 .HasColumnName("difficulty");
@@ -103,7 +112,11 @@ public partial class QuiZappDbContext : DbContext
             entity.Property(e => e.Marks)
                 .HasDefaultValueSql("1")
                 .HasColumnName("marks");
+            entity.Property(e => e.Modifierdat)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("modifierdat");
             entity.Property(e => e.Text).HasColumnName("text");
+            entity.Property(e => e.Updatedby).HasColumnName("updatedby");
 
             entity.HasOne(d => d.Category).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CategoryId)
@@ -131,11 +144,12 @@ public partial class QuiZappDbContext : DbContext
                 .HasDefaultValueSql("false")
                 .HasColumnName("isdeleted");
             entity.Property(e => e.Ispublic)
-                .HasDefaultValueSql("true")
+                .HasDefaultValueSql("false")
                 .HasColumnName("ispublic");
             entity.Property(e => e.Modifiedat)
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("modifiedat");
+            entity.Property(e => e.Modifiedby).HasColumnName("modifiedby");
             entity.Property(e => e.Title)
                 .HasMaxLength(150)
                 .HasColumnName("title");

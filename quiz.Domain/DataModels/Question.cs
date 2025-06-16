@@ -19,6 +19,12 @@ public partial class Question
 
     public int? CategoryId { get; set; }
 
+    public DateTime? Modifierdat { get; set; }
+
+    public int? Createdby { get; set; }
+
+    public int? Updatedby { get; set; }
+
     public virtual Category? Category { get; set; }
 
     public virtual ICollection<Option> Options { get; set; } = new List<Option>();

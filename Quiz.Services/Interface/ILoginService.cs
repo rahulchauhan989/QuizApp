@@ -11,4 +11,6 @@ public interface ILoginService
     Task<String> RegisterUserAsync(RegistrationViewModel request);
 
     int ExtractUserIdFromToken(string token);
+
+    Task<UserProfileViewModel?> GetCurrentUserProfileAsync(string token);
 }

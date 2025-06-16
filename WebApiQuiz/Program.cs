@@ -9,7 +9,7 @@ using quiz.Repo.Interface;
 using Quiz.Services.Implementation;
 using Quiz.Services.Interface;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);  
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -28,6 +28,11 @@ builder.Services.AddScoped<IUserAnswerRepository, UserAnswerRepository>();
 builder.Services.AddScoped<IUserQuizAttemptRepository, UserQuizAttemptRepository>();
 builder.Services.AddScoped<ILoginRepo, LoginRepo>();
 builder.Services.AddScoped<ILoginService, LoginService>();
+builder.Services.AddScoped<IQuestionServices, QuestionServices>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IQuizesSubmission,QuizesSubmission>();
+builder.Services.AddScoped<IUserHistory,UserHistory>();
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)  //Adds authentication services to the application.

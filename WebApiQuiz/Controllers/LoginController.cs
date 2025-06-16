@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using quiz.Domain.ViewModels;
 using Quiz.Services.Interface;
@@ -43,6 +44,13 @@ public class LoginController : ControllerBase
                 return Unauthorized("Invalid email or password");
 
             string token = await _loginService.GenerateToken(request);
+            Response.Cookies.Append("jwtToken", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.Strict,
+                Expires = DateTimeOffset.UtcNow.AddHours(1)
+            });
 
             return Ok(new
             {
@@ -85,4 +93,46 @@ public class LoginController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    // [HttpPost("logout")]
+    // [Authorize]
+    // public IActionResult Logout()
+    // {
+    //     // Remove the JWT token cookie
+    //     Response.Cookies.Delete("token");
+
+    //     return Ok(new { message = "Logged out successfully" });
+    // }
+
+
+    [HttpGet("User")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        try
+        {
+            string? token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                token = Request.Cookies["jwtToken"]; // fallback to cookie
+            }
+
+            if (string.IsNullOrEmpty(token))
+                return Unauthorized("Token not found.");
+
+            var userProfile = await _loginService.GetCurrentUserProfileAsync(token);
+
+            if (userProfile == null)
+                return NotFound("User not found.");
+
+            return Ok(userProfile);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error in GetCurrentUser: " + ex.Message);
+            return StatusCode(500, "Internal server error.");
+        }
+    }
+
 }

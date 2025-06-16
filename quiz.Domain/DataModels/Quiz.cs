@@ -27,6 +27,8 @@ public partial class Quiz
 
     public DateTime? Modifiedat { get; set; }
 
+    public int? Modifiedby { get; set; }
+
     public virtual Category Category { get; set; } = null!;
 
     public virtual User CreatedbyNavigation { get; set; } = null!;
