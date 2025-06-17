@@ -1,5 +1,3 @@
-
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using quiz.Domain.ViewModels;
@@ -24,17 +22,13 @@ public class QuestionController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuestion([FromBody] QuestionCreateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            if (dto == null)
-                return BadRequest("Question data is required.");
-
             var validationResult = await _questionService.ValidateQuestionAsync(dto);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.ErrorMessage);
-
 
             var createdQuestion = await _questionService.CreateQuestionAsync(dto);
             return Ok(createdQuestion); // Returns Question DTO
@@ -69,11 +63,10 @@ public class QuestionController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> EditQuestion([FromBody] QuestionUpdateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             var validationResult = await _questionService.ValidateQuestionUpdate(dto);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.ErrorMessage);
@@ -94,6 +87,10 @@ public class QuestionController : ControllerBase
     {
         try
         {
+            var validationResult = await _questionService.validateDeleteQuestionAsync(id);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
             bool result = await _questionService.SoftDeleteQuestionAsync(id);
             return result ? Ok("Question deleted successfully.") : NotFound("Question not found.");
         }
@@ -105,27 +102,17 @@ public class QuestionController : ControllerBase
     }
 
     [HttpGet("category/{categoryId}/random/{count}")]
-    [Authorize(Roles = "Admin, User")] // Allow both Admins and Users to fetch random questions
+    [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> GetRandomQuestions(int categoryId, int count)
     {
         try
         {
-            if (categoryId <= 0)
-                return BadRequest("Invalid Category ID.");
-
-            if (count <= 0)
-                return BadRequest("Count must be greater than zero.");
-
-            var categoryExists = await _questionService.IsCategoryExistsAsync(categoryId);
-            if (!categoryExists)
-                return NotFound($"Category with ID {categoryId} does not exist.");
-
-            var availableQuestions = await _questionService.GetQuestionCountByCategoryAsync(categoryId);
-            if (availableQuestions < count)
-                return BadRequest($"Not enough questions available in category {categoryId}. Available: {availableQuestions}, Requested: {count}");
+            var validationResult = await _questionService.ValidateGetRandomQuestionsAsync(categoryId, count);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
 
             var questions = await _questionService.GetRandomQuestionsAsync(categoryId, count);
-            return Ok(questions); // Returns List<QuestionDto>
+            return Ok(questions); 
         }
         catch (Exception ex)
         {
@@ -135,27 +122,17 @@ public class QuestionController : ControllerBase
     }
 
     [HttpGet("quiz/{quizId}/random/{count}")]
-    [Authorize(Roles = "Admin, User")] // Allow both Admins and Users to fetch random questions by quiz ID
+    [Authorize(Roles = "Admin, User")] 
     public async Task<IActionResult> GetRandomQuestionByQuizId(int quizId, int count)
     {
         try
         {
-            if (quizId <= 0)
-                return BadRequest("Invalid Quiz ID.");
-
-            if (count <= 0)
-                return BadRequest("Count must be greater than zero.");
-
-            var quizExists = await _questionService.IsQuizExistsAsync(quizId);
-            if (!quizExists)
-                return NotFound($"Quiz with ID {quizId} does not exist.");
-
-            var availableQuestions = await _questionService.GetQuestionCountByQuizIdAsync(quizId);
-            if (availableQuestions < count)
-                return BadRequest($"Not enough questions available in quiz {quizId}. Available: {availableQuestions}, Requested: {count}");
+            var validationResult = await _questionService.ValidateGetRandomQuestionsByQuizIdAsync(quizId, count);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
 
             var questions = await _questionService.GetRandomQuestionsByQuizIdAsync(quizId, count);
-            return Ok(questions); // Returns List<QuestionDto>
+            return Ok(questions); 
         }
         catch (Exception ex)
         {

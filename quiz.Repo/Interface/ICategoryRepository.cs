@@ -10,4 +10,7 @@ public interface ICategoryRepository
     Task UpdateCategoryAsync(Category category);
     Task<bool> DeleteCategoryAsync(int id);
     Task<bool> CheckDuplicateCategoryAsync(string name);
+       Task<IEnumerable<Quiz>> GetQuizzesByCategoryIdAsync(int categoryId);
+
+
 }

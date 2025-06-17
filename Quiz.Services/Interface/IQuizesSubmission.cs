@@ -15,6 +15,7 @@ public interface IQuizesSubmission
     Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter);
 
     Task<IEnumerable<QuizListDto>> GetFilteredQuizzesAsync(QuizFilterDto filter);
-
+    Task<ValidationResult> ValidateQuizSubmissionAsync(SubmitQuizRequest request);
+    Task<ValidationResult> ValidateQuizStartAsync(StartQuizRequest request);
 
 }

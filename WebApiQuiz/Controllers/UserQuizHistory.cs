@@ -1,33 +1,36 @@
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
 
-public class UserQuizHistory : ControllerBase
+[ApiController]
+[Route("api/user-quiz-history")]
+public class UserQuizHistoryController : ControllerBase
 {
     private readonly IUserHistory _userHistoryService;
-    private readonly ILogger<UserQuizHistory> _logger;
-    public UserQuizHistory(IUserHistory userHistoryService, ILogger<UserQuizHistory> logger)
+    private readonly ILogger<UserQuizHistoryController> _logger;
+
+    public UserQuizHistoryController(IUserHistory userHistoryService, ILogger<UserQuizHistoryController> logger)
     {
         _userHistoryService = userHistoryService;
         _logger = logger;
     }
 
-
     #region User Quiz History
 
-    [HttpGet("user/{userId}/quiz-history")]
+    [HttpGet("{userId}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetUserQuizHistory(int userId)
     {
         try
         {
+            var validationResult = await _userHistoryService.ValidateUserIdAsync(userId);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
             var quizHistory = await _userHistoryService.GetUserQuizHistoryAsync(userId);
-
-            if (quizHistory == null || !quizHistory.Any())
-                return NotFound($"No quiz history found for user with ID {userId}.");
-
             return Ok(quizHistory);
         }
         catch (Exception ex)

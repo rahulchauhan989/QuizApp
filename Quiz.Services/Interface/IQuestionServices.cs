@@ -14,11 +14,11 @@ public interface IQuestionServices
     Task<int> GetQuestionCountByQuizIdAsync(int quizId);
     Task<List<QuestionDto>> GetRandomQuestionsByQuizIdAsync(int quizId, int count);
     Task<bool> IsQuizExistsAsync(int quizId);
-
     Task<QuestionEditDto?> GetQuestionForEditAsync(int questionId);
-
     Task<QuestionDto?> EditQuestionAsync(QuestionUpdateDto dto);
-
     Task<bool> SoftDeleteQuestionAsync(int id);
+    Task<ValidationResult> ValidateGetRandomQuestionsAsync(int categoryId, int count);
+    Task<ValidationResult> ValidateGetRandomQuestionsByQuizIdAsync(int quizId, int count);
+    Task<ValidationResult> validateDeleteQuestionAsync(int questionId);
 
 }

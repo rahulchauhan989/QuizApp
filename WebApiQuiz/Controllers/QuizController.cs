@@ -27,11 +27,10 @@ public class QuizController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuizOnly([FromBody] CreateQuizOnlyDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
             bool isCategoryExists = await _questionService.IsCategoryExistsAsync(dto.Categoryid);
             if (!isCategoryExists)
                 return BadRequest("Category does not exist.");
@@ -46,27 +45,23 @@ public class QuizController : ControllerBase
         }
     }
 
-
     [HttpPost("add-questions")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> AddQuestionsToQuiz([FromBody] AddQuestionToQuizDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            // var quizExists = await _quizService.QuizExistsAsync(dto.QuizId);    
-
             if (dto.ExistingQuestionIds != null && dto.ExistingQuestionIds.Any() && dto.ExistingQuestionIds.All(id => id > 0))
             {
                 var validateResults = await _quizService.ValidateQuizForExistingQuestions(dto);
                 if (!validateResults.IsValid)
                     return BadRequest(validateResults.ErrorMessage);
 
-                var validateResult = await _quizService.validateQuiz(dto);  
+                var validateResult = await _quizService.validateQuiz(dto);
                 if (!validateResult.IsValid)
-                    return BadRequest(validateResult.ErrorMessage);  
+                    return BadRequest(validateResult.ErrorMessage);
 
                 var addedQuestions = await _quizService.AddExistingQuestionsToQuizAsync(dto.QuizId, dto.ExistingQuestionIds);
                 return Ok(new { Message = "Questions added to quiz successfully.", Questions = addedQuestions });
@@ -94,11 +89,15 @@ public class QuizController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> RemoveQuestionFromQuiz([FromBody] RemoveQuestionFromQuizDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            var result = await _quizService.RemoveQuestionFromQuizAsync(dto);
-            if (!result)
-                return NotFound("Quiz or Question not found or not associated.");
+            var validationResult = await _quizService.RemoveQuestionFromQuizAsyncValidation(dto.QuizId, dto.QuestionId);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
+            bool result = await _quizService.RemoveQuestionFromQuizAsync(dto);
 
             return Ok("Question removed from quiz successfully.");
         }
@@ -165,15 +164,36 @@ public class QuizController : ControllerBase
         }
     }
 
+    [HttpPut("{id}/unpublish")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> UnpublishQuiz(int id)
+    {
+        try
+        {
+            var validationResult = await _quizService.UnpublishQuizAsync(id);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
+            return Ok(new { Message = "Quiz unpublished successfully." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while unpublishing quiz.");
+            return StatusCode(500, "An internal server error occurred.");
+        }
+    }
+
     [HttpDelete("delete-quiz/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteQuiz(int id)
     {
         try
         {
+            var validationResult = await _quizService.validateForDeleteQuiz(id);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
+
             var deleted = await _quizService.SoftDeleteQuizAsync(id);
-            if (!deleted)
-                return NotFound("Quiz not found or already inactive.");
             return Ok(new { message = "Quiz deleted (soft delete) successfully." });
         }
         catch (Exception ex)
@@ -210,13 +230,10 @@ public class QuizController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuizFromExistingQuestions([FromBody] CreateQuizFromExistingQuestionsDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            if (dto.QuestionIds == null || !dto.QuestionIds.Any())
-                return BadRequest("At least one question must be selected.");
-
             var validatingResult = await _quizService.ValidateQuizFromExistingQuestions(dto);
 
             if (!validatingResult.IsValid)

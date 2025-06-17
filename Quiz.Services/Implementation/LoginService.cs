@@ -33,6 +33,27 @@ public class LoginService : ILoginService
         return result;
     }
 
+    public async Task<ValidationResult> ValidateLoginAsync(LoginModel request)
+    {
+        if (request == null)
+        {
+            return ValidationResult.Failure("Request cannot be null.");
+        }
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.password))
+        {
+            return ValidationResult.Failure("Email and Password cannot be null or empty.");
+        }
+
+        bool isValidUser = await _Loginrepository.ValidateUserAsync(request.Email, request.password);
+
+        if (!isValidUser)
+        {
+            return ValidationResult.Failure("Invalid email or password.");
+        }
+
+        return ValidationResult.Success();
+    }
+
     public async Task<string> GenerateToken(LoginModel request)
     {
         var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
@@ -74,6 +95,8 @@ public class LoginService : ILoginService
         }
         return tokenString;
     }
+
+
 
     public async Task<String> RegisterUserAsync(RegistrationViewModel request)
     {

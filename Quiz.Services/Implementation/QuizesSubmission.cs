@@ -41,8 +41,6 @@ public class QuizesSubmission : IQuizesSubmission
             Durationminutes = quiz.Durationminutes,
             Ispublic = quiz.Ispublic,
             Isdeleted = quiz.Isdeleted,
-            // Startdate = quiz.Startdate,
-            // Enddate = quiz.Enddate,
             Categoryid = quiz.Categoryid,
         };
     }
@@ -105,7 +103,7 @@ public class QuizesSubmission : IQuizesSubmission
         // 1. Validate if already submitted
         var existingAttempt = await _attemptRepo.GetAttemptByUserAndQuizAsync(request.UserId, request.QuizId, request.categoryId);
         if (existingAttempt != null && existingAttempt.Issubmitted == true)
-            throw new Exception("Quiz already submitted.");
+            return -1000; // Already submitted or no score available
 
         // 2. Get correct answers from DB
         var correctAnswers = await _quizRepository.GetCorrectAnswersForQuizAsync(request.categoryId);
@@ -118,7 +116,16 @@ public class QuizesSubmission : IQuizesSubmission
                 .FirstOrDefault(c => c.QuestionId == answer.QuestionId)?.CorrectOptionId;
 
             if (correctOptionId == answer.OptionId)
-                score++;
+            {
+                score += correctAnswers
+                     .FirstOrDefault(c => c.QuestionId == answer.QuestionId)?.Marks ?? 0;
+            }
+            else
+            {
+                // if the answer is incorrect, we minus the marks for that question
+                score -= correctAnswers
+                    .FirstOrDefault(c => c.QuestionId == answer.QuestionId)?.Marks ?? 0;
+            }
         }
 
         // 4. Create or update attempt
@@ -134,6 +141,7 @@ public class QuizesSubmission : IQuizesSubmission
             Score = score,
             Issubmitted = true
         });
+
 
         // 5. Save all user answers
         foreach (var ans in request.Answers)
@@ -152,6 +160,7 @@ public class QuizesSubmission : IQuizesSubmission
         return score;
     }
 
+  
     public async Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter)
     {
         return await Task.Run(() =>
@@ -164,6 +173,80 @@ public class QuizesSubmission : IQuizesSubmission
 
             if (!string.IsNullOrEmpty(filter.TitleKeyword) && filter.TitleKeyword.Length < 3)
                 return ValidationResult.Failure("Title keyword must be at least 3 characters long.");
+
+            return ValidationResult.Success();
+        });
+    }
+
+    public async Task<ValidationResult> ValidateQuizSubmissionAsync(SubmitQuizRequest request)
+    {
+        return await Task.Run(async () =>
+        {
+            if (request == null)
+                return ValidationResult.Failure("Request data is required.");
+
+            if (request.UserId <= 0 || request.QuizId <= 0 || request.categoryId <= 0)
+                return ValidationResult.Failure("Invalid User ID, Quiz ID, or Category ID.");
+
+            var quiz = await _quizRepository.GetQuizByIdAsync(request.QuizId);
+            if (quiz == null)
+                return ValidationResult.Failure($"Quiz with ID {request.QuizId} does not exist.");
+
+            if (request.Answers == null || !request.Answers.Any())
+                return ValidationResult.Failure("At least one answer is required.");
+
+            foreach (var answer in request.Answers)
+            {
+                if (answer.QuestionId <= 0 || answer.OptionId <= 0)
+                    return ValidationResult.Failure("Invalid answer data.");
+            }
+
+            int totalMarks = await _quizRepository.GetTotalMarksByQuizIdAsync(request);
+            int inputMarks = 0;
+
+            foreach (var answer in request.Answers)
+            {
+                int questionMarks = await _quizRepository.GetQuetionsMarkByIdAsync(answer.QuestionId);
+                inputMarks += questionMarks;
+            }
+
+            if (inputMarks > totalMarks)
+                return ValidationResult.Failure($"Total marks for answers ({inputMarks}) exceed the quiz total marks ({totalMarks}).");
+
+            if (quiz.Durationminutes.HasValue &&
+                (request.EndedAt - request.StartedAt).TotalMinutes > quiz.Durationminutes.Value)
+            {
+                return ValidationResult.Failure($"Quiz duration exceeded. Maximum allowed is {quiz.Durationminutes} minutes.");
+            }
+
+            return ValidationResult.Success();
+        });
+    }
+
+    public async Task<ValidationResult> ValidateQuizStartAsync(StartQuizRequest request)
+    {
+        return await Task.Run(async () =>
+        {
+            if (request == null)
+                return ValidationResult.Failure("Request data is required.");
+
+            if (request.UserId <= 0 || request.QuizId <= 0 || request.categoryId <= 0)
+                return ValidationResult.Failure("Invalid User ID, Quiz ID, or Category ID.");
+
+            var quiz = await _quizRepository.GetQuizByIdAsync(request.QuizId);
+            if (quiz == null || quiz.Isdeleted == true)
+                return ValidationResult.Failure($"Quiz with ID {request.QuizId} does not exist or is deleted.");
+
+            if (quiz.Ispublic != true)
+                return ValidationResult.Failure("This quiz is not public or active.");
+
+            bool existingAttempt = await CheckExistingAttemptAsync(request.UserId, request.QuizId, request.categoryId);
+            if (existingAttempt)
+                return ValidationResult.Failure("You have already started this quiz or may have submitted it.");
+
+            var questions = await GetQuestionsForQuizAsync(request.QuizId);
+            if (questions == null || !questions.Any())
+                return ValidationResult.Failure("No questions found for this quiz.");
 
             return ValidationResult.Success();
         });

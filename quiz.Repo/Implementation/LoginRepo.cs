@@ -50,13 +50,6 @@ namespace quiz.Repo.Implementation
                 return "User already exists with this email.";
             }
 
-            // var user = new User
-            // {
-            //     Email = request.Email,
-            //     Passwordhash = BCrypt.Net.BCrypt.HashPassword(request.Passwordhash),
-            //     Role = request.Role // Assuming Role is part of RegistrationViewModel
-            // };
-
             _context.Users.Add(request);
             await _context.SaveChangesAsync();
 

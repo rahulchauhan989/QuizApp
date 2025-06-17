@@ -22,5 +22,8 @@ public interface IQuizService
     Task<bool> SoftDeleteQuizAsync(int id);
     Task<bool> RemoveQuestionFromQuizAsync(RemoveQuestionFromQuizDto dto);
     Task<ValidationResult> PublishQuizAsync(int quizId);
-    
+    Task<ValidationResult> RemoveQuestionFromQuizAsyncValidation(int quizId, int questionId);
+    Task<ValidationResult> validateForEditQuiz(QuizEditDto dto);
+    Task<ValidationResult> validateForDeleteQuiz(int quizId);
+    Task<ValidationResult> UnpublishQuizAsync(int quizId);
 }

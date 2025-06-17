@@ -13,4 +13,8 @@ public interface IUserQuizAttemptRepository
      Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync(); // Fetch active quizzes that are not yet submitted
     Task<Userquizattempt> GetAttemptByIdAsync(int attemptId); // Fetch a specific quiz attempt by ID
     Task<Userquizattempt?> GetAttemptByUserAndQuizAsync(int userId, int quizId);
+    Task<bool> IsUserExistAsync(int userId);
+
+        Task<IEnumerable<Userquizattempt>> GetAttemptsByCategoryIdAsync(int categoryId);
+
 }

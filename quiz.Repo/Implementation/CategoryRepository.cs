@@ -51,8 +51,15 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<bool> CheckDuplicateCategoryAsync(string name)
     {
-        return await _context.Categories.AnyAsync(c => c.Name.ToLower() == name.ToLower());
+        return await _context.Categories.AnyAsync(c => c.Name.ToLower() == name.ToLower() && c.Isdeleted == false);
     }
+
+    public async Task<IEnumerable<Quiz>> GetQuizzesByCategoryIdAsync(int categoryId)
+{
+    return await _context.Quizzes
+        .Where(q => q.Categoryid == categoryId && q.Isdeleted != true)
+        .ToListAsync();
+}
 
 
 }

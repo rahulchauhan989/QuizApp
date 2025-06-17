@@ -18,31 +18,16 @@ public class LoginController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginModel request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (request == null)
-                return BadRequest("Request cannot be null.");
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.password))
-                return BadRequest("Email and password are required.");
-
-            // Hash the user's entered password
-            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password);
-
-            // Log the hashed password to the console
-            Console.WriteLine($"Hashed Password: {hashedPassword}");
-
-
-            bool result = await _loginService.ValidateUserAsync(request.Email, request.password);
-
-            // return result ? Ok("Login successful") : Unauthorized("Invalid email or password");
-
-            if (!result)
-                return Unauthorized("Invalid email or password");
-
+            var validationResult = await _loginService.ValidateLoginAsync(request);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.ErrorMessage);
+            }
+            
             string token = await _loginService.GenerateToken(request);
             Response.Cookies.Append("jwtToken", token, new CookieOptions
             {
@@ -70,13 +55,12 @@ public class LoginController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegistrationViewModel request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
             if (request == null)
                 return BadRequest("Request cannot be null.");
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
 
             string result = await _loginService.RegisterUserAsync(request);
 

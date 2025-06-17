@@ -18,7 +18,7 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
     public async Task<Userquizattempt?> GetAttemptByUserAndQuizAsync(int userId, int quizId, int categoryId)
     {
         return await _context.Userquizattempts
-            .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId );
+            .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId);
     }
 
     public async Task<int> CreateAttemptAsync(Userquizattempt attempt)
@@ -48,20 +48,6 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
         await _context.SaveChangesAsync();
     }
 
-    //   public async Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync()
-    // {
-    //     // Fetch active quizzes that are not yet submitted
-    //     return await _context.Userquizattempts
-    //         .Where(a => a.Issubmitted.GetValueOrDefault() == false && a.Startedat.HasValue)
-    //         .Select(a => new ActiveQuiz
-    //         {
-    //             AttemptId = a.Id,
-    //             StartedAt = a.Startedat!.Value,
-    //             DurationMinutes = a.Quiz.Durationminutes
-    //         })
-    //         .ToListAsync();
-    // }
-
     public async Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync()
     {
         // Fetch data from the database first
@@ -74,7 +60,7 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
         return attempts.Select(a => new ActiveQuiz
         {
             AttemptId = a.Id,
-            StartedAt = a.Startedat!.Value,   ///
+            StartedAt = a.Startedat!.Value,
             DurationMinutes = a.Quiz?.Durationminutes
         }).ToList();
     }
@@ -91,6 +77,18 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
     {
         return await _context.Userquizattempts
             .FirstOrDefaultAsync(a => a.Userid == userId && a.Quizid == quizId);
+    }
+
+    public async Task<bool> IsUserExistAsync(int userId)
+    {
+        return await _context.Users.AnyAsync(u => u.Id == userId);
+    }
+
+    public async Task<IEnumerable<Userquizattempt>> GetAttemptsByCategoryIdAsync(int categoryId)
+    {
+        return await _context.Userquizattempts
+            .Where(uqa => uqa.Categoryid == categoryId)
+            .ToListAsync();
     }
 
 }

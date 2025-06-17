@@ -18,8 +18,6 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<QuiZappDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("RMSDbConnection")));
 
-// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<IQuizRepository, QuizRepository>();

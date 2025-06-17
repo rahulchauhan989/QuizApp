@@ -2,6 +2,7 @@ namespace quiz.Domain.ViewModels;
 
 public class StartQuizRequest
 {
+    
     public int QuizId { get; set; } // The ID of the quiz the user wants to start
     public int UserId { get; set; } // The ID of the user starting the quiz
 

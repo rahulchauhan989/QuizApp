@@ -40,13 +40,10 @@ public class CategoryController : ControllerBase
     [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> GetCategoryById(int id)
     {
+        if (id <= 0)
+            return BadRequest("Invalid Category ID.");
         try
         {
-            if (id <= 0)
-                return BadRequest("Invalid Category ID.");
-
-               
-
             var category = await _categoryService.GetCategoryByIdAsync(id);
             return category != null ? Ok(category) : NotFound("Category not found.");
         }
@@ -61,16 +58,13 @@ public class CategoryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            bool duplicateExists = await _categoryService.CheckDuplicateCategoryAsync(dto.Name);    
-            if (duplicateExists)
-            {
-                return BadRequest("Category with the same name already exists.");
-            }
+            var validationResult = await _categoryService.validateCategoryAsync(dto);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
 
             var createdCategory = await _categoryService.CreateCategoryAsync(dto);
             return Ok(createdCategory);
@@ -86,10 +80,13 @@ public class CategoryController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto dto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         try
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            var validationResult = await _categoryService.validateCategoryUpdateAsync(dto);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.ErrorMessage);
 
             var updatedCategory = await _categoryService.UpdateCategoryAsync(id, dto);
             return updatedCategory != null ? Ok(updatedCategory) : NotFound("Category not found.");

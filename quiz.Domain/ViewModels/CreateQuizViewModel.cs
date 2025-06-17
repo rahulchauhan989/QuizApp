@@ -16,9 +16,9 @@ public class CreateQuizViewModel
 
     public bool? Isdeleted { get; set; }
 
-    public DateTime? Startdate { get; set; }
+    // public DateTime? Startdate { get; set; }
 
-    public DateTime? Enddate { get; set; }
+    // public DateTime? Enddate { get; set; }
 
     public int Categoryid { get; set; }
 

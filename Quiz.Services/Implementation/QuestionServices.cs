@@ -67,47 +67,92 @@ public class QuestionServices : IQuestionServices
 
     public async Task<ValidationResult> ValidateQuestionUpdate(QuestionUpdateDto dto)
     {
-        return await Task.Run(async () =>
-        {
-            string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
+        string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
 
-            if (dto == null)
-                return ValidationResult.Failure("Question data is required.");
+        if (dto == null)
+            return ValidationResult.Failure("Question data is required.");
 
-            if (dto.Id <= 0)
-                return ValidationResult.Failure("Invalid Question ID.");
+        if (dto.Id <= 0)
+            return ValidationResult.Failure("Invalid Question ID.");
 
-            var existingQuestion = await _quizRepository.GetQuestionByIdAsync(dto.Id);
-            if (existingQuestion == null || existingQuestion.Isdeleted == true)
-                return ValidationResult.Failure("Question does not exist or has been deleted.");
+        var existingQuestion = await _quizRepository.GetQuestionByIdAsync(dto.Id);
+        if (existingQuestion == null || existingQuestion.Isdeleted == true)
+            return ValidationResult.Failure("Question does not exist or has been deleted.");
 
-            if (dto.Categoryid <= 0)
-                return ValidationResult.Failure("Invalid Category ID.");
+        // Check if the QuestionId exists in the Useranswer table
+        bool isQuestionUsedInAnswers = await _quizRepository.IsQuestionUsedInAnswersAsync(dto.Id);
+        if (isQuestionUsedInAnswers)
+            return ValidationResult.Failure("This question cannot be edited because it has been answered in one or more quizzes.");
 
-            bool isCategoryExists = await _quizRepository.IsCategoryExistsAsync(dto.Categoryid);
-            if (!isCategoryExists)
-                return ValidationResult.Failure("Category does not exist.");
+        // Check if the QuestionId exists in the Quizquestion table and the related quiz is public
+        bool isQuestionInPublicQuiz = await _quizRepository.IsQuestionInPublicQuizAsync(dto.Id);
+        if (isQuestionInPublicQuiz)
+            return ValidationResult.Failure("This question cannot be edited because it is part of a public quiz.");
 
-            if (string.IsNullOrWhiteSpace(dto.Text))
-                return ValidationResult.Failure("Question text cannot be empty.");
+        if (dto.Categoryid <= 0)
+            return ValidationResult.Failure("Invalid Category ID.");
 
-            if (dto.Marks <= 0)
-                return ValidationResult.Failure("Marks must be greater than zero.");
+        bool isCategoryExists = await _quizRepository.IsCategoryExistsAsync(dto.Categoryid);
+        if (!isCategoryExists)
+            return ValidationResult.Failure("Category does not exist.");
 
-            if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty))
-                return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
+        if (string.IsNullOrWhiteSpace(dto.Text))
+            return ValidationResult.Failure("Question text cannot be empty.");
 
-            if (dto.Options == null || dto.Options.Count < 2 || dto.Options.Count > 4)
-                return ValidationResult.Failure("Each question must have between two and four options.");
+        if (dto.Marks <= 0)
+            return ValidationResult.Failure("Marks must be greater than zero.");
 
-            if (!dto.Options.Any(o => o.IsCorrect))
-                return ValidationResult.Failure("At least one option must be marked as correct.");
+        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty))
+            return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
-            if (dto.Options.Count(o => o.IsCorrect) > 1)
-                return ValidationResult.Failure("Only one option can be marked as correct.");
+        if (dto.Options == null || dto.Options.Count != 4)
+            return ValidationResult.Failure("Each question must have four options.");
 
-            return ValidationResult.Success();
-        });
+        if (!dto.Options.Any(o => o.IsCorrect))
+            return ValidationResult.Failure("At least one option must be marked as correct.");
+
+        if (dto.Options.Count(o => o.IsCorrect) > 1)
+            return ValidationResult.Failure("Only one option can be marked as correct.");
+
+        return ValidationResult.Success();
+    }
+
+    public async Task<ValidationResult> ValidateGetRandomQuestionsAsync(int categoryId, int count)
+    {
+        if (categoryId <= 0)
+            return ValidationResult.Failure("Invalid Category ID.");
+
+        bool isCategoryExists = await _quizRepository.IsCategoryExistsAsync(categoryId);
+        if (!isCategoryExists)
+            return ValidationResult.Failure("Category does not exist.");
+
+        if (count <= 0)
+            return ValidationResult.Failure("Count must be greater than zero.");
+
+        int questionCount = await _quizRepository.GetQuestionCountByCategoryAsync(categoryId);
+        if (questionCount < count)
+            return ValidationResult.Failure($"Not enough questions available in category {categoryId} to fetch {count} random questions.");
+
+        return ValidationResult.Success();
+    }
+
+    public async Task<ValidationResult> ValidateGetRandomQuestionsByQuizIdAsync(int quizId, int count)
+    {
+        if (quizId <= 0)
+            return ValidationResult.Failure("Invalid Quiz ID.");
+
+        bool isQuizExists = await _quizRepository.IsQuizExistsAsync(quizId);
+        if (!isQuizExists)
+            return ValidationResult.Failure("Quiz does not exist.");
+
+        if (count <= 0)
+            return ValidationResult.Failure("Count must be greater than zero.");
+
+        int questionCount = await _quizRepository.GetQuestionCountByQuizIdAsync(quizId);
+        if (questionCount < count)
+            return ValidationResult.Failure($"Not enough questions available in quiz {quizId} to fetch {count} random questions.");
+
+        return ValidationResult.Success();
     }
 
     public async Task<QuestionDto> CreateQuestionAsync(QuestionCreateDto dto)
@@ -130,9 +175,6 @@ public class QuestionServices : IQuestionServices
 
         // Add the question to the database
         await _quizRepository.CreateQuestionAsync(question);
-
-        // Associate the question with the specified quiz, For Now No need to associate with quiz
-        // await _quizRepository.AddQuestionToQuizAsync(dto.QuizId, question.Id);
 
         // Map to DTO
         return new QuestionDto
@@ -199,7 +241,6 @@ public class QuestionServices : IQuestionServices
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,
-            // QuizId = quizId,
             Categoryid = q.CategoryId ?? 0, // Default to 0 if null
             Text = q.Text,
             Marks = q.Marks,
@@ -284,8 +325,28 @@ public class QuestionServices : IQuestionServices
             }).ToList()
         };
     }
-    
 
+public async Task<ValidationResult> validateDeleteQuestionAsync(int questionId)
+{
+    if (questionId <= 0)
+        return ValidationResult.Failure("Invalid Question ID.");
+
+    var existingQuestion = await _quizRepository.GetQuestionByIdAsync(questionId);
+    if (existingQuestion == null || existingQuestion.Isdeleted == true)
+        return ValidationResult.Failure("Question does not exist or has been deleted.");
+
+    // Check if the QuestionId exists in the Useranswer table
+    bool isQuestionUsedInAnswers = await _quizRepository.IsQuestionUsedInAnswersAsync(questionId);
+    if (isQuestionUsedInAnswers)
+        return ValidationResult.Failure("This question cannot be deleted because it has been answered in one or more quizzes.");
+
+    // Check if the QuestionId exists in the Quizquestion table and the related quiz is public
+    bool isQuestionInPublicQuiz = await _quizRepository.IsQuestionInPublicQuizAsync(questionId);
+    if (isQuestionInPublicQuiz)
+        return ValidationResult.Failure("This question cannot be deleted because it is part of a public quiz.");
+
+    return ValidationResult.Success();
+}
 
     public async Task<bool> SoftDeleteQuestionAsync(int id)
     {
@@ -297,6 +358,7 @@ public class QuestionServices : IQuestionServices
         await _quizRepository.UpdateQuestionAsync(question);
         return true;
     }
+
 
 
 

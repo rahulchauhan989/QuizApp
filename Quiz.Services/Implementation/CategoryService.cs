@@ -13,11 +13,17 @@ public class CategoryService : ICategoryService
 
     private readonly ILoginService _loginService;
 
-    public CategoryService(ICategoryRepository categoryRepository, IHttpContextAccessor httpContextAccessor, ILoginService loginService)
+    private readonly IQuizService _quizService;
+
+    private readonly IUserQuizAttemptRepository _userQuizAttemptRepository;
+
+    public CategoryService(ICategoryRepository categoryRepository, IHttpContextAccessor httpContextAccessor, ILoginService loginService, IQuizService quizService, IUserQuizAttemptRepository userQuizAttemptRepository)
     {
         _httpContextAccessor = httpContextAccessor;
         _categoryRepository = categoryRepository;
         _loginService = loginService;
+        _quizService = quizService;
+        _userQuizAttemptRepository = userQuizAttemptRepository;
     }
 
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
@@ -80,6 +86,17 @@ public class CategoryService : ICategoryService
         string token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", "")!;
         int userId = _loginService.ExtractUserIdFromToken(token);
 
+        bool isNameChanged = !string.IsNullOrWhiteSpace(dto.Name) && dto.Name != category.Name;
+        if (isNameChanged)
+        {
+            // Check if the new name already exists
+            bool iaNameExists = await _categoryRepository.CheckDuplicateCategoryAsync(dto.Name!);
+            if (iaNameExists)
+            {
+                throw new InvalidOperationException("Category with this name already exists.");
+            }
+        }
+
         category.Name = dto.Name ?? category.Name;
         category.Description = dto.Description ?? category.Description;
         category.Modifiedby = userId;
@@ -106,10 +123,60 @@ public class CategoryService : ICategoryService
 
     public async Task<bool> CheckDuplicateCategoryAsync(string name)
     {
-        // var categories = await _categoryRepository.GetAllCategoriesAsync();
-        // return categories.Any(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         bool isCategoryExists = await _categoryRepository.CheckDuplicateCategoryAsync(name);
         return isCategoryExists;
     }
 
+    public async Task<ValidationResult> validateCategoryAsync(CategoryCreateDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return ValidationResult.Failure("Category name is required.");
+
+        if (dto.Name.Length < 3 || dto.Name.Length > 50)
+            return ValidationResult.Failure("Category name must be between 3 and 50 characters.");
+
+        if (await CheckDuplicateCategoryAsync(dto.Name))
+            return ValidationResult.Failure("Category with this name already exists.");
+
+        return ValidationResult.Success();
+    }
+
+    public async Task<ValidationResult> validateCategoryUpdateAsync(CategoryUpdateDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Name))
+            return ValidationResult.Failure("Category name is required.");
+
+        if (dto.Name.Length < 3 || dto.Name.Length > 50)
+            return ValidationResult.Failure("Category name must be between 3 and 50 characters.");
+
+        if (await CheckDuplicateCategoryAsync(dto.Name))
+            return ValidationResult.Failure("Category with this name already exists.");
+
+        return ValidationResult.Success();
+    }
+
+    public async Task<ValidationResult> validateCategoryDeleteAsync(int id)
+    {
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+        if (category == null)
+            return ValidationResult.Failure("Category not found.");
+
+        // Check if there are any quizzes associated with this category
+        var quizzes = await _categoryRepository.GetQuizzesByCategoryIdAsync(id);
+        if (quizzes.Any())
+        {
+            // Check if any quiz is published
+            if (quizzes.Any(q => q.Ispublic == true))
+                return ValidationResult.Failure("Cannot delete category as it is associated with published quizzes.");
+
+            return ValidationResult.Failure("Cannot delete category as it is associated with existing quizzes.");
+        }
+
+        // Check if there are any user quiz attempts associated with this category
+        var userQuizAttempts = await _userQuizAttemptRepository.GetAttemptsByCategoryIdAsync(id);
+        if (userQuizAttempts.Any())
+            return ValidationResult.Failure("Cannot delete category as it is associated with user quiz attempts.");
+
+        return ValidationResult.Success();
+    }
 }

@@ -10,5 +10,7 @@ public interface ICategoryService
     Task<CategoryDto?> UpdateCategoryAsync(int id, CategoryUpdateDto dto);
     Task<bool> DeleteCategoryAsync(int id);
     Task<bool> CheckDuplicateCategoryAsync(string name);
-
+    Task<ValidationResult> validateCategoryAsync(CategoryCreateDto dto);
+    Task<ValidationResult> validateCategoryUpdateAsync(CategoryUpdateDto dto);
+    Task<ValidationResult> validateCategoryDeleteAsync(int id);
 }

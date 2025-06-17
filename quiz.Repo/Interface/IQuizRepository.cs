@@ -55,6 +55,13 @@ public interface IQuizRepository
 
     Task<int> GetQuizQuestionsMarksSumAsync(int quizId);
 
+    Task<bool> IsQuestionUsedInAnswersAsync(int questionId);
+    Task<bool> IsQuestionInPublicQuizAsync(int questionId);
+
+    // Task<Quiz?> GetQuizByIdAsync(int quizId);
+    Task<bool> IsQuestionInQuizAsync(int quizId, int questionId);
+    // Task RemoveQuestionFromQuizAsync(int quizId, int questionId);
+    Task<bool> HasUnsubmittedAttemptsAsync(int quizId);
 
 
 }

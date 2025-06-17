@@ -173,7 +173,8 @@ public class QuizRepository : IQuizRepository
                       select new CorrectAnswerDto
                       {
                           QuestionId = question.Id,
-                          CorrectOptionId = option.Id
+                          CorrectOptionId = option.Id,
+                            Marks =(int) question.Marks!
                       }).ToListAsync();
     }
 
@@ -259,7 +260,7 @@ public class QuizRepository : IQuizRepository
             "DELETE FROM QuizQuestions WHERE QuizId = {0} AND QuestionId = {1}",
             quizId, questionId
         );
-        
+
         return affected > 0;
     }
 
@@ -282,4 +283,29 @@ public class QuizRepository : IQuizRepository
         _context.Options.RemoveRange(options);
         await _context.SaveChangesAsync();
     }
+
+    //check before edit Question that if this Question Already used in Useranswers table or not
+    public async Task<bool> IsQuestionUsedInAnswersAsync(int questionId)
+    {
+        return await _context.Useranswers.AnyAsync(ua => ua.Questionid == questionId);
+    }
+
+    //if Quiz is public than do not allow Admin to Edit the Question Otherwise mismatch between Question's Total marks and Quiz Total marks
+    public async Task<bool> IsQuestionInPublicQuizAsync(int questionId)
+    {
+        return await _context.Quizquestions
+            .Where(q => q.Questionid == questionId)
+            .AnyAsync(q => q.Quiz.Ispublic == true);
+    }
+
+    public async Task<bool> IsQuestionInQuizAsync(int quizId, int questionId)
+    {
+        return await _context.Quizquestions.AnyAsync(q => q.Quizid == quizId && q.Questionid == questionId);
+    }
+
+    public async Task<bool> HasUnsubmittedAttemptsAsync(int quizId)
+    {
+        return await _context.Userquizattempts.AnyAsync(uqa => uqa.Quizid == quizId && uqa.Issubmitted == false);
+    }
+
 }
