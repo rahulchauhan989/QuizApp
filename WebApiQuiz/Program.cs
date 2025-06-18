@@ -33,37 +33,34 @@ builder.Services.AddScoped<IQuizesSubmission,QuizesSubmission>();
 builder.Services.AddScoped<IUserHistory,UserHistory>();
 
 // Add JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)  //Adds authentication services to the application.
-    .AddJwtBearer(options =>  //Configures the JWT Bearer authentication scheme
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme) 
+    .AddJwtBearer(options =>  
     {
-        options.TokenValidationParameters = new TokenValidationParameters  //TokenValidationParameters Specifies the rules for validating the JWT token
+        options.TokenValidationParameters = new TokenValidationParameters  
         {
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,  //Ensures that the token's signature is valid and was signed using the correct key.
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],  //Specifies the expected iss (Issuer) claim value.
+            ValidateIssuerSigningKey = true,  
+            ValidIssuer = builder.Configuration["Jwt:Issuer"], 
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.")))
         };
     });
 
-// Add Swagger for API documentation
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-/// Add a hosted service for quiz submission
 builder.Services.AddHostedService<QuizSubmissionService>();
 
-// Add Swagger for API documentation
-builder.Services.AddSwaggerGen(options => //Configures Swagger to support JWT Bearer authentication.
+builder.Services.AddSwaggerGen(options => 
 {
     options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Name = "Authorization",  //Specifies the name of the header where the token will be sent.
-        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,  //Specifies the type of security scheme
-        Scheme = "Bearer",  //Specifies the scheme name.
-        BearerFormat = "JWT",  //Specifies the format of the token.
-        In = Microsoft.OpenApi.Models.ParameterLocation.Header,  //Specifies where the token should be sent in the request.
+        Name = "Authorization",  
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,  
+        Scheme = "Bearer",  
+        BearerFormat = "JWT", 
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,  
         Description = "Enter  your valid JWT token in the text input below"
     });
 
@@ -78,14 +75,13 @@ builder.Services.AddSwaggerGen(options => //Configures Swagger to support JWT Be
                     Id = "Bearer"
                 }
             },
-            new string[] {}   //Specifies that no additional scopes are required.
+            new string[] {}  
         }
-    });   //Configures Swagger to require the "Bearer" scheme for all endpoints
+    });   
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -94,7 +90,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Add authentication and authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
 

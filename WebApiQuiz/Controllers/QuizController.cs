@@ -21,7 +21,6 @@ public class QuizController : ControllerBase
         _logger = logger;
     }
 
-    #region Quiz Management
 
     [HttpPost("create-quiz-only")]
     [Authorize(Roles = "Admin")]
@@ -251,6 +250,5 @@ public class QuizController : ControllerBase
         }
     }
 
-    #endregion
 
 }
