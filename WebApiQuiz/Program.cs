@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 
 // Register the QuizDbContext with a connection string
 builder.Services.AddDbContext<QuiZappDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("RMSDbConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("QuiZAppDb")));
 
 builder.Services.AddHttpContextAccessor();
 

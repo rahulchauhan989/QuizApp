@@ -100,7 +100,7 @@ public class CategoryService : ICategoryService
         category.Name = dto.Name ?? category.Name;
         category.Description = dto.Description ?? category.Description;
         category.Modifiedby = userId;
-        category.Modifiedat = DateTime.UtcNow.ToLocalTime(); //
+        category.Modifiedat = DateTime.UtcNow.ToLocalTime(); 
 
         await _categoryRepository.UpdateCategoryAsync(category);
 
@@ -149,6 +149,8 @@ public class CategoryService : ICategoryService
         if (dto.Name.Length < 3 || dto.Name.Length > 50)
             return ValidationResult.Failure("Category name must be between 3 and 50 characters.");
 
+            
+
         if (await CheckDuplicateCategoryAsync(dto.Name))
             return ValidationResult.Failure("Category with this name already exists.");
 
@@ -157,7 +159,7 @@ public class CategoryService : ICategoryService
 
     public async Task<ValidationResult> validateCategoryDeleteAsync(int id)
     {
-        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);  
         if (category == null)
             return ValidationResult.Failure("Category not found.");
 

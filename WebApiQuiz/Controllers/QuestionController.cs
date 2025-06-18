@@ -31,7 +31,7 @@ public class QuestionController : ControllerBase
                 return BadRequest(validationResult.ErrorMessage);
 
             var createdQuestion = await _questionService.CreateQuestionAsync(dto);
-            return Ok(createdQuestion); // Returns Question DTO
+            return Ok(createdQuestion);
         }
         catch (Exception ex)
         {
@@ -112,7 +112,7 @@ public class QuestionController : ControllerBase
                 return BadRequest(validationResult.ErrorMessage);
 
             var questions = await _questionService.GetRandomQuestionsAsync(categoryId, count);
-            return Ok(questions); 
+            return Ok(questions);
         }
         catch (Exception ex)
         {
@@ -122,7 +122,7 @@ public class QuestionController : ControllerBase
     }
 
     [HttpGet("quiz/{quizId}/random/{count}")]
-    [Authorize(Roles = "Admin, User")] 
+    [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> GetRandomQuestionByQuizId(int quizId, int count)
     {
         try
@@ -132,7 +132,7 @@ public class QuestionController : ControllerBase
                 return BadRequest(validationResult.ErrorMessage);
 
             var questions = await _questionService.GetRandomQuestionsByQuizIdAsync(quizId, count);
-            return Ok(questions); 
+            return Ok(questions);
         }
         catch (Exception ex)
         {

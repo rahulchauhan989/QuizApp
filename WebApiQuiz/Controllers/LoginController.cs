@@ -27,7 +27,7 @@ public class LoginController : ControllerBase
             {
                 return BadRequest(validationResult.ErrorMessage);
             }
-            
+
             string token = await _loginService.GenerateToken(request);
             Response.Cookies.Append("jwtToken", token, new CookieOptions
             {
@@ -99,7 +99,7 @@ public class LoginController : ControllerBase
 
             if (string.IsNullOrEmpty(token))
             {
-                token = Request.Cookies["jwtToken"]; // fallback to cookie
+                token = Request.Cookies["jwtToken"];
             }
 
             if (string.IsNullOrEmpty(token))

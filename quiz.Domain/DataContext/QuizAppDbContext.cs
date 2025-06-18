@@ -22,6 +22,8 @@ public partial class QuiZappDbContext : DbContext
 
     public virtual DbSet<Question> Questions { get; set; }
 
+    public virtual DbSet<Questiontag> Questiontags { get; set; }
+
     public virtual DbSet<Quiz> Quizzes { get; set; }
 
     public virtual DbSet<Quizquestion> Quizquestions { get; set; }
@@ -121,6 +123,44 @@ public partial class QuiZappDbContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Questions)
                 .HasForeignKey(d => d.CategoryId)
                 .HasConstraintName("fk_categories");
+        });
+
+        modelBuilder.Entity<Questiontag>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("questiontag_pkey");
+
+            entity.ToTable("questiontag");
+
+            entity.Property(e => e.Id).HasColumnName("id");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("created_at");
+            entity.Property(e => e.CreatedBy).HasColumnName("created_by");
+            entity.Property(e => e.Questionid).HasColumnName("questionid");
+            entity.Property(e => e.Tagid).HasColumnName("tagid");
+            entity.Property(e => e.UpdatedAt)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("updated_at");
+            entity.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+
+            entity.HasOne(d => d.CreatedByNavigation).WithMany(p => p.QuestiontagCreatedByNavigations)
+                .HasForeignKey(d => d.CreatedBy)
+                .HasConstraintName("questiontag_created_by_fkey");
+
+            entity.HasOne(d => d.Question).WithMany(p => p.Questiontags)
+                .HasForeignKey(d => d.Questionid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("questiontag_questionid_fkey");
+
+            entity.HasOne(d => d.Tag).WithMany(p => p.Questiontags)
+                .HasForeignKey(d => d.Tagid)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("questiontag_tagid_fkey");
+
+            entity.HasOne(d => d.UpdatedByNavigation).WithMany(p => p.QuestiontagUpdatedByNavigations)
+                .HasForeignKey(d => d.UpdatedBy)
+                .HasConstraintName("questiontag_updated_by_fkey");
         });
 
         modelBuilder.Entity<Quiz>(entity =>

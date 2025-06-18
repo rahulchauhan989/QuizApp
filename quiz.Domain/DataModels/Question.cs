@@ -29,5 +29,7 @@ public partial class Question
 
     public virtual ICollection<Option> Options { get; set; } = new List<Option>();
 
+    public virtual ICollection<Questiontag> Questiontags { get; set; } = new List<Questiontag>();
+
     public virtual ICollection<Useranswer> Useranswers { get; set; } = new List<Useranswer>();
 }

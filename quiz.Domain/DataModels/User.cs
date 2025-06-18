@@ -19,6 +19,10 @@ public partial class User
 
     public DateTime? Createdat { get; set; }
 
+    public virtual ICollection<Questiontag> QuestiontagCreatedByNavigations { get; set; } = new List<Questiontag>();
+
+    public virtual ICollection<Questiontag> QuestiontagUpdatedByNavigations { get; set; } = new List<Questiontag>();
+
     public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
 
     public virtual ICollection<Userquizattempt> Userquizattempts { get; set; } = new List<Userquizattempt>();

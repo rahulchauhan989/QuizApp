@@ -133,7 +133,6 @@ public class QuizService : IQuizService
             if (question.CategoryId != quiz.Categoryid)
                 return ValidationResult.Failure($"Question ID {question.Id} does not belong to the same category as the quiz.");
         }
-
         return ValidationResult.Success();
     }
 
@@ -393,7 +392,7 @@ public class QuizService : IQuizService
             Description = dto.Description,
             Totalmarks = dto.Totalmarks,
             Durationminutes = dto.Durationminutes,
-            Ispublic = dto.Ispublic,
+            Ispublic = false, // Default to false for quiz creation
             Categoryid = dto.Categoryid,
             Createdby = userId
         };

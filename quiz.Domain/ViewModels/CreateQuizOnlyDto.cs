@@ -40,7 +40,7 @@ public class AddQuestionToQuizDto
     public int? Marks { get; set; }
 
     [MaxLength(10, ErrorMessage = "Difficulty cannot exceed 10 characters.")]
-    [RegularExpression(@"^(Easy|Medium|Hard)$", ErrorMessage = "Difficulty must be either 'Easy', 'Medium', or 'Hard'.")]
+    [RegularExpression(@"^(Easy|Medium|Hard|easy|medium|hard)$", ErrorMessage = "Difficulty must be either 'Easy', 'Medium', or 'Hard'.")]
     public string? Difficulty { get; set; }
     public List<AddOptionDto>? Options { get; set; }
 }
