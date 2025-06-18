@@ -12,15 +12,3 @@ appsettings.*.json
 # Ignore build directories
 bin/
 obj/
-
-# Ignore user-specific files
-.vscode/
-*.user
-*.suo
-
-
-# Ignore database files
-*.db
-*.sqlite
-
-
