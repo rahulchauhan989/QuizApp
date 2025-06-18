@@ -22,12 +22,17 @@ public class CategoryController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetAllCategories()
+    public async Task<ActionResult<ResponseDto>> GetAllCategories()
     {
         try
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(categories);
+            return Ok(new ResponseDto(true, "Categories fetched successfully.", categories)
+            {
+                IsSuccess = true,
+                Data = categories,
+                Message = "Categories fetched successfully."
+            });
         }
         catch (Exception ex)
         {
