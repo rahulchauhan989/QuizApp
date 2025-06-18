@@ -204,6 +204,8 @@ public class QuizController : ControllerBase
     }
 
 
+
+// if we want to Create Quiz with Questions simultaneously otherwise Above Api 
     [HttpPost("create-quiz")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizDto dto)
