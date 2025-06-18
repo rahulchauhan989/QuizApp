@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace quiz.Domain.ViewModels;
+namespace quiz.Domain.Dto;
 
 public class CreateQuizDto
 {
+    
     [Required(ErrorMessage = "Title is required.")]
     [MaxLength(100, ErrorMessage = "Title cannot exceed 100 characters.")]
     public string? Title { get; set; }   

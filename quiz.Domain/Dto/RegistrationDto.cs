@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace quiz.Domain.ViewModels;
+namespace quiz.Domain.Dto;
 
-public class RegistrationViewModel
+public class RegistrationDto
 {
     [Required(ErrorMessage = "Name is required")]
     [StringLength(50, ErrorMessage = "Name cannot be longer than 50 characters.")]

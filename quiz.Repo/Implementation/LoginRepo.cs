@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using quiz.Domain.DataContext;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 
 namespace quiz.Repo.Implementation
@@ -23,9 +23,9 @@ namespace quiz.Repo.Implementation
 
             if (!isPasswordValid)
             {
-                return false; // Invalid credentials
+                return false; 
             }
-            return true; // Valid credentials    
+            return true;
         }
 
         public async Task<User> GetUserByEmailAsync(string email)

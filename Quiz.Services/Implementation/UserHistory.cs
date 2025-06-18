@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 using Quiz.Services.Interface;
 
@@ -18,14 +18,10 @@ public class UserHistory : IUserHistory
         _attemptRepo = attemptRepo;
     }
 
-    #region User Quiz History
-
     public async Task<List<UserQuizHistoryDto>> GetUserQuizHistoryAsync(int userId)
     {
-        // Fetch user quiz attempts from the repository
         var userQuizAttempts = await _quizRepository.GetUserQuizAttemptsAsync(userId);
 
-        // Map the data to the DTO
         return userQuizAttempts.Select(attempt => new UserQuizHistoryDto
         {
             AttemptId = attempt.Id,
@@ -52,7 +48,6 @@ public class UserHistory : IUserHistory
 
     public async Task<bool> isUserExistAsync(int userId)
     {
-        // Check if the user exists in the repository
         return await _attemptRepo.IsUserExistAsync(userId);
     }
 
@@ -61,7 +56,6 @@ public class UserHistory : IUserHistory
         if (userId <= 0)
             return ValidationResult.Failure("Invalid user ID.");
 
-        // Validate the user, quiz, and category existence
         var isUserValid = await isUserExistAsync(userId);
         if (!isUserValid)
             return ValidationResult.Failure("User does not exist.");
@@ -73,6 +67,5 @@ public class UserHistory : IUserHistory
         return ValidationResult.Success();
     }
 
-    #endregion
 
 }

@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using quiz.Domain.DataContext;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
+
 using quiz.Repo.Interface;
 
 namespace quiz.Repo.Implementation;
@@ -49,12 +50,9 @@ public class QuizRepository : IQuizRepository
     public async Task<IEnumerable<Question>> GetRandomQuestionsAsync(int Categoryid, int count)
     {
         return await _context.Questions
-            .Where(q => q.CategoryId == Categoryid && q.Isdeleted == false) // Ensure the question is not deleted
+            .Where(q => q.CategoryId == Categoryid && q.Isdeleted == false) 
             .Include(q => q.Options)
-            //database generates a random GUID for each row in the query result and sorts the rows based on these GUIDs, For large datasets, this can be inefficient and slow.
-            // .OrderBy(q => Guid.NewGuid()) // Randomize the order
-            // generates a random value between 0 and 1 for each row in the query
-            .OrderBy(q => EF.Functions.Random()) //  PostgreSQL's RANDOM() function, This approach is more efficient because the randomization happens directly in the database.
+            .OrderBy(q => EF.Functions.Random()) 
             .Take(count)
             .ToListAsync();
     }
@@ -65,9 +63,9 @@ public class QuizRepository : IQuizRepository
             .Where(q => _context.Quizquestions
                 .Where(qq => qq.Quizid == quizId)
                 .Select(qq => qq.Questionid)
-                .Contains(q.Id)) // Filter questions based on QuizQuestions
-            .Include(q => q.Options) // Include navigation property
-            .OrderBy(q => EF.Functions.Random()) // Randomize the order
+                .Contains(q.Id)) 
+            .Include(q => q.Options) 
+            .OrderBy(q => EF.Functions.Random()) 
             .Take(count)
             .ToListAsync();
     }
@@ -113,8 +111,8 @@ public class QuizRepository : IQuizRepository
             .Where(q => _context.Quizquestions
                 .Where(qq => qq.Quizid == quizId)
                 .Select(qq => qq.Questionid)
-                .Contains(q.Id)) // Filter questions based on QuizQuestions
-            .Include(q => q.Options) // Include options for each question
+                .Contains(q.Id))
+            .Include(q => q.Options) 
             .ToListAsync();
     }
 
@@ -212,20 +210,18 @@ public class QuizRepository : IQuizRepository
     {
         return await _context.Questions
             .Where(q => questionIds.Contains(q.Id))
-            .Include(q => q.Options) // Include options for each question
+            .Include(q => q.Options) 
             .ToListAsync();
     }
 
     public async Task AddQuestionToQuiz(Quiz quiz, Question question)
     {
-        // Associate the question with the quiz in the QuizQuestions table
         var quizQuestion = new Quizquestion
         {
             Quizid = quiz.Id,
             Questionid = question.Id
         };
 
-        // _context.Quizquestions.Add(quizQuestion);
         await _context.Database.ExecuteSqlRawAsync(
           "INSERT INTO QuizQuestions (QuizId, QuestionId) VALUES ({0}, {1})",
           quizQuestion.Quizid, quizQuestion.Questionid
@@ -237,12 +233,12 @@ public class QuizRepository : IQuizRepository
     {
         return await _context.Userquizattempts
             .Where(attempt => attempt.Userid == userId)
-            .Include(attempt => attempt.Quiz) // Include quiz details
-            .Include(attempt => attempt.Category) // Include category details
-            .Include(attempt => attempt.Useranswers) // Include user answers
-                .ThenInclude(answer => answer.Question) // Include question details
+            .Include(attempt => attempt.Quiz) 
+            .Include(attempt => attempt.Category) 
+            .Include(attempt => attempt.Useranswers) 
+                .ThenInclude(answer => answer.Question) 
             .Include(attempt => attempt.Useranswers)
-                .ThenInclude(answer => answer.Option) // Include option details
+                .ThenInclude(answer => answer.Option) 
             .ToListAsync();
     }
 
@@ -284,13 +280,11 @@ public class QuizRepository : IQuizRepository
         await _context.SaveChangesAsync();
     }
 
-    //check before edit Question that if this Question Already used in Useranswers table or not
     public async Task<bool> IsQuestionUsedInAnswersAsync(int questionId)
     {
         return await _context.Useranswers.AnyAsync(ua => ua.Questionid == questionId);
     }
 
-    //if Quiz is public than do not allow Admin to Edit the Question Otherwise mismatch between Question's Total marks and Quiz Total marks
     public async Task<bool> IsQuestionInPublicQuizAsync(int questionId)
     {
         return await _context.Quizquestions

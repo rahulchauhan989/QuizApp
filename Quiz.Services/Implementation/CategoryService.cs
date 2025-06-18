@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 using Quiz.Services.Interface;
 
@@ -89,7 +89,6 @@ public class CategoryService : ICategoryService
         bool isNameChanged = !string.IsNullOrWhiteSpace(dto.Name) && dto.Name != category.Name;
         if (isNameChanged)
         {
-            // Check if the new name already exists
             bool iaNameExists = await _categoryRepository.CheckDuplicateCategoryAsync(dto.Name!);
             if (iaNameExists)
             {
@@ -163,18 +162,15 @@ public class CategoryService : ICategoryService
         if (category == null)
             return ValidationResult.Failure("Category not found.");
 
-        // Check if there are any quizzes associated with this category
         var quizzes = await _categoryRepository.GetQuizzesByCategoryIdAsync(id);
         if (quizzes.Any())
         {
-            // Check if any quiz is published
             if (quizzes.Any(q => q.Ispublic == true))
                 return ValidationResult.Failure("Cannot delete category as it is associated with published quizzes.");
 
             return ValidationResult.Failure("Cannot delete category as it is associated with existing quizzes.");
         }
 
-        // Check if there are any user quiz attempts associated with this category
         var userQuizAttempts = await _userQuizAttemptRepository.GetAttemptsByCategoryIdAsync(id);
         if (userQuizAttempts.Any())
             return ValidationResult.Failure("Cannot delete category as it is associated with user quiz attempts.");

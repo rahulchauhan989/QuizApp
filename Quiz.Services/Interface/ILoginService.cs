@@ -1,4 +1,4 @@
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 
 namespace Quiz.Services.Interface;
 
@@ -10,9 +10,9 @@ public interface ILoginService
 
     Task<ValidationResult> ValidateLoginAsync(LoginModel request);
 
-    Task<String> RegisterUserAsync(RegistrationViewModel request);
+    Task<String> RegisterUserAsync(RegistrationDto request);
 
     int ExtractUserIdFromToken(string token);
 
-    Task<UserProfileViewModel?> GetCurrentUserProfileAsync(string token);
+    Task<UserProfileViewDto?> GetCurrentUserProfileAsync(string token);
 }

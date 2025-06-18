@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
@@ -18,8 +18,6 @@ public class QuizSubmissionController : ControllerBase
         _logger = logger;
     }
 
-    #region Quiz Submission
-
     [HttpPost("search")]
     [Authorize(Roles = "Admin, User")]
     public async Task<IActionResult> SearchQuizzes([FromBody] QuizFilterDto filter)
@@ -34,7 +32,7 @@ public class QuizSubmissionController : ControllerBase
                 return BadRequest(validationResult.ErrorMessage);
 
             var quizzes = await _quizesSubmissionService.GetFilteredQuizzesAsync(filter);
-            return Ok(quizzes); // Returns List<QuizListDto>
+            return Ok(quizzes); 
         }
         catch (Exception ex)
         {
@@ -131,5 +129,4 @@ public class QuizSubmissionController : ControllerBase
         }
     }
 
-    #endregion
 }

@@ -1,4 +1,4 @@
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 
 namespace Quiz.Services.Interface;
 

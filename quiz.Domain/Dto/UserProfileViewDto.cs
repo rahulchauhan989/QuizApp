@@ -1,6 +1,6 @@
-namespace quiz.Domain.ViewModels
+namespace quiz.Domain.Dto
 {
-    public class UserProfileViewModel
+    public class UserProfileViewDto
     {
         public int Id { get; set; }
         public string Fullname { get; set; } = null!;

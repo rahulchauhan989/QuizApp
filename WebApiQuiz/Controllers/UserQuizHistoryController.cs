@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Services.Interface;
@@ -17,8 +16,6 @@ public class UserQuizHistoryController : ControllerBase
         _userHistoryService = userHistoryService;
         _logger = logger;
     }
-
-    #region User Quiz History
 
     [HttpGet("{userId}")]
     [Authorize(Roles = "Admin")]
@@ -39,6 +36,4 @@ public class UserQuizHistoryController : ControllerBase
             return StatusCode(500, "An internal server error occurred.");
         }
     }
-
-    #endregion
 }

@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 using Quiz.Services.Interface;
 
@@ -22,15 +22,13 @@ public class QuizesSubmission : IQuizesSubmission
         _logger = logger;
     }
 
-
-    #region Quiz Submission
-    public async Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId)
+    public async Task<CreateQuizzDto> GetQuizByIdAsync(int quizId)
     {
         var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
         if (quiz == null)
             throw new Exception("Quiz not found.");
 
-        return new CreateQuizViewModel
+        return new CreateQuizzDto
         {
             Id = quiz.Id,
             Title = quiz.Title!,
@@ -46,13 +44,11 @@ public class QuizesSubmission : IQuizesSubmission
     {
         var existingAttempt = await _attemptRepo.GetAttemptByUserAndQuizAsync(userId, quizId, categoryId);
 
-        // Return true if an attempt exists and is not submitted
         return existingAttempt != null;
     }
 
     public async Task<IEnumerable<QuestionDto>> GetQuestionsForQuizAsync(int quizId)
     {
-        // Fetch questions for the quiz from the database
         var questions = await _quizRepository.GetQuestionsByQuizIdAsync(quizId);
 
         return questions.Select(q => new QuestionDto
@@ -69,7 +65,6 @@ public class QuizesSubmission : IQuizesSubmission
 
     public async Task<int> StartQuizAsync(int userId, int quizId, int categoryId)
     {
-        // Create a new quiz attempt
         var attemptId = await _attemptRepo.CreateAttemptAsync(new Userquizattempt
         {
             Userid = userId,
@@ -84,27 +79,22 @@ public class QuizesSubmission : IQuizesSubmission
 
     public async Task<int> GetTotalMarksAsync(SubmitQuizRequest request)
     {
-        // Get the total marks for the quiz based on the category
         return await _quizRepository.GetTotalMarksByQuizIdAsync(request);
     }
 
     public async Task<int> GetQuetionsMarkByIdAsync(int questionId)
     {
-        // Get the marks for a specific question by its ID
         return await _quizRepository.GetQuetionsMarkByIdAsync(questionId);
     }
 
     public async Task<int> SubmitQuizAsync(SubmitQuizRequest request)
     {
-        // 1. Validate if already submitted
         var existingAttempt = await _attemptRepo.GetAttemptByUserAndQuizAsync(request.UserId, request.QuizId, request.categoryId);
         if (existingAttempt != null && existingAttempt.Issubmitted == true)
-            return -1000; // Already submitted or no score available
+            return -1000; 
 
-        // 2. Get correct answers from DB
         var correctAnswers = await _quizRepository.GetCorrectAnswersForQuizAsync(request.categoryId);
 
-        // 3. Calculate score
         int score = 0;
         foreach (var answer in request.Answers)
         {
@@ -118,14 +108,11 @@ public class QuizesSubmission : IQuizesSubmission
             }
             else
             {
-                // if the answer is incorrect, we minus the marks for that question
                 score -= correctAnswers
                     .FirstOrDefault(c => c.QuestionId == answer.QuestionId)?.Marks ?? 0;
             }
         }
 
-        // 4. Create or update attempt
-        //existingAttempt?.Id ?? is not null than left side value will be used, otherwise right side value will be used
         var attemptId = existingAttempt?.Id ?? await _attemptRepo.CreateAttemptAsync(new Userquizattempt
         {
             Userid = request.UserId,
@@ -139,7 +126,6 @@ public class QuizesSubmission : IQuizesSubmission
         });
 
 
-        // 5. Save all user answers
         foreach (var ans in request.Answers)
         {
             var isCorrect = correctAnswers
@@ -252,9 +238,6 @@ public class QuizesSubmission : IQuizesSubmission
     {
         return await _quizRepository.GetFilteredQuizzesAsync(filter);
     }
-
-
-    #endregion
 
 
 }

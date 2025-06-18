@@ -1,5 +1,5 @@
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 
 namespace quiz.Repo.Interface;
 

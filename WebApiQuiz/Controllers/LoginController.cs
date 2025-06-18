@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
@@ -49,11 +49,10 @@ public class LoginController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
 
-
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegistrationViewModel request)
+    public async Task<IActionResult> Register([FromBody] RegistrationDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -69,7 +68,6 @@ public class LoginController : ControllerBase
                 "User already exists with this email." => Conflict(result),
                 _ => Ok(new { Message = "Registration successful" })
             };
-
         }
         catch (Exception ex)
         {
@@ -77,17 +75,6 @@ public class LoginController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
-
-    // [HttpPost("logout")]
-    // [Authorize]
-    // public IActionResult Logout()
-    // {
-    //     // Remove the JWT token cookie
-    //     Response.Cookies.Delete("token");
-
-    //     return Ok(new { message = "Logged out successfully" });
-    // }
-
 
     [HttpGet("User")]
     [Authorize]
@@ -118,5 +105,4 @@ public class LoginController : ControllerBase
             return StatusCode(500, "Internal server error.");
         }
     }
-
 }

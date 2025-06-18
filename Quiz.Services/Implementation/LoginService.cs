@@ -4,7 +4,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 using Quiz.Services.Interface;
 
@@ -83,7 +83,6 @@ public class LoginService : ILoginService
 
         string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
-        //  Decode token to check if Role is actually included
         var handler = new JwtSecurityTokenHandler();
         var decodedToken = handler.ReadJwtToken(tokenString);
 
@@ -97,14 +96,13 @@ public class LoginService : ILoginService
 
 
 
-    public async Task<String> RegisterUserAsync(RegistrationViewModel request)
+    public async Task<String> RegisterUserAsync(RegistrationDto request)
     {
         if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.password))
         {
             return "Email and Password cannot be null or empty.";
         }
 
-        // Hash the password before saving
         string hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.password);
 
         User newUser = new User
@@ -112,7 +110,7 @@ public class LoginService : ILoginService
             Fullname = request.Name!,
             Email = request.Email,
             Passwordhash = hashedPassword,
-            Role = "User" // Default "User" 
+            Role = "User" 
         };
 
         return await _Loginrepository.RegisterUserAsync(newUser);
@@ -137,7 +135,7 @@ public class LoginService : ILoginService
         return userId;
     }
 
-    public async Task<UserProfileViewModel?> GetCurrentUserProfileAsync(string token)
+    public async Task<UserProfileViewDto?> GetCurrentUserProfileAsync(string token)
     {
         int userId = ExtractUserIdFromToken(token); 
 
@@ -146,7 +144,7 @@ public class LoginService : ILoginService
         if (user == null)
             return null;
 
-        return new UserProfileViewModel
+        return new UserProfileViewDto
         {
             Id = user.Id,
             Fullname = user.Fullname,

@@ -42,8 +42,7 @@ public class CategoryRepository : ICategoryRepository
         if (category == null)
             return false;
 
-        // _context.Categories.Remove(category);
-        //soft delete
+   
         category.Isdeleted = true;
         await _context.SaveChangesAsync();
         return true;

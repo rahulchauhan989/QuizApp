@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace quiz.Domain.ViewModels;
+namespace quiz.Domain.Dto;
 public class CategoryCreateDto
 {
     [Required(ErrorMessage = "Category name is required.")]

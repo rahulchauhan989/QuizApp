@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 using Quiz.Services.Interface;
-using ValidationResult = quiz.Domain.ViewModels.ValidationResult;
+using ValidationResult = quiz.Domain.Dto.ValidationResult;
 
 namespace Quiz.Services.Implementation;
 
@@ -24,8 +24,6 @@ public class QuestionServices : IQuestionServices
         _httpContextAccessor = httpContextAccessor;
         _loginService = loginService;
     }
-
-    #region Question Management
 
     public async Task<ValidationResult> ValidateQuestionAsync(QuestionCreateDto dto)
     {
@@ -173,14 +171,11 @@ public class QuestionServices : IQuestionServices
             }).ToList()
         };
 
-        // Add the question to the database
         await _quizRepository.CreateQuestionAsync(question);
 
-        // Map to DTO
         return new QuestionDto
         {
             Id = question.Id,
-            // QuizId = dto.QuizId,
             Categoryid = (int)question.CategoryId!,
             Text = question.Text,
             Marks = question.Marks,
@@ -215,7 +210,6 @@ public class QuestionServices : IQuestionServices
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,
-            // QuizId = q.Quizid,
             Categoryid = (int)q.CategoryId!,
             Text = q.Text,
             Marks = q.Marks,
@@ -241,7 +235,7 @@ public class QuestionServices : IQuestionServices
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,
-            Categoryid = q.CategoryId ?? 0, // Default to 0 if null
+            Categoryid = q.CategoryId ?? 0, 
             Text = q.Text,
             Marks = q.Marks,
             Difficulty = q.Difficulty,
@@ -299,7 +293,6 @@ public class QuestionServices : IQuestionServices
         question.Createdat = question.Createdat ?? DateTime.UtcNow.ToLocalTime();
         question.Modifierdat = DateTime.UtcNow.ToLocalTime();
 
-        // Remove old options & add new ones
         await _quizRepository.RemoveOptionsByQuestionIdAsync(question.Id);
 
         question.Options = dto.Options?.Select(o => new Option
@@ -358,11 +351,4 @@ public async Task<ValidationResult> validateDeleteQuestionAsync(int questionId)
         await _quizRepository.UpdateQuestionAsync(question);
         return true;
     }
-
-
-
-
-    #endregion
-
-
 }

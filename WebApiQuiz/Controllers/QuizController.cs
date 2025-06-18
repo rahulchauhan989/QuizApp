@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
@@ -203,8 +203,6 @@ public class QuizController : ControllerBase
     }
 
 
-
-// if we want to Create Quiz with Questions simultaneously otherwise Above Api 
     [HttpPost("create-quiz")]
     [Authorize(Roles = "Admin")]
     public async Task<IActionResult> CreateQuiz([FromBody] CreateQuizDto dto)

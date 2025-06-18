@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using quiz.Domain.DataContext;
 using quiz.Domain.DataModels;
-using quiz.Domain.ViewModels;
+using quiz.Domain.Dto;
 using quiz.Repo.Interface;
 
 namespace quiz.Repo.Implementation;
@@ -23,7 +23,6 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 
     public async Task<int> CreateAttemptAsync(Userquizattempt attempt)
     {
-        // Convert DateTime properties to Unspecified
         if (attempt.Startedat.HasValue)
             attempt.Startedat = DateTime.SpecifyKind(attempt.Startedat.Value, DateTimeKind.Unspecified);
 
@@ -37,7 +36,6 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 
     public async Task UpdateAttemptAsync(Userquizattempt attempt)
     {
-        // Convert DateTime properties to Unspecified
         if (attempt.Startedat.HasValue)
             attempt.Startedat = DateTime.SpecifyKind(attempt.Startedat.Value, DateTimeKind.Unspecified);
 
@@ -50,13 +48,11 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 
     public async Task<IEnumerable<ActiveQuiz>> GetActiveQuizzesAsync()
     {
-        // Fetch data from the database first
         var attempts = await _context.Userquizattempts
             .Where(a => a.Issubmitted == false && a.Startedat.HasValue)
             .Include(a => a.Quiz)
             .ToListAsync();
 
-        // Apply the projection in memory
         return attempts.Select(a => new ActiveQuiz
         {
             AttemptId = a.Id,
@@ -67,9 +63,8 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 
     public async Task<Userquizattempt?> GetAttemptByIdAsync(int attemptId)
     {
-        // Fetch a specific quiz attempt by ID
         return await _context.Userquizattempts
-            .Include(a => a.Useranswers) // Include related user answers
+            .Include(a => a.Useranswers) 
             .FirstOrDefaultAsync(a => a.Id == attemptId);
     }
 
