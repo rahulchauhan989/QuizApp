@@ -99,9 +99,6 @@ public class QuizService : IQuizService
 
     public async Task<ValidationResult> ValidateQuizForExistingQuestions(AddQuestionToQuizDto dto)
     {
-        if (dto == null)
-            return ValidationResult.Failure("Quiz data is required.");
-
         var quiz = await _quizRepository.GetQuizByIdAsync(dto.QuizId);
 
         if (quiz == null || quiz.Isdeleted == true)

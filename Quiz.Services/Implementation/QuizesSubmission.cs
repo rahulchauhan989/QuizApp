@@ -26,12 +26,10 @@ public class QuizesSubmission : IQuizesSubmission
     #region Quiz Submission
     public async Task<CreateQuizViewModel> GetQuizByIdAsync(int quizId)
     {
-        // Fetch the quiz details by ID
         var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
         if (quiz == null)
             throw new Exception("Quiz not found.");
 
-        // Map to CreateQuizViewModel
         return new CreateQuizViewModel
         {
             Id = quiz.Id,
@@ -46,7 +44,6 @@ public class QuizesSubmission : IQuizesSubmission
     }
     public async Task<bool> CheckExistingAttemptAsync(int userId, int quizId, int categoryId)
     {
-        // Fetch existing attempt
         var existingAttempt = await _attemptRepo.GetAttemptByUserAndQuizAsync(userId, quizId, categoryId);
 
         // Return true if an attempt exists and is not submitted
@@ -58,7 +55,6 @@ public class QuizesSubmission : IQuizesSubmission
         // Fetch questions for the quiz from the database
         var questions = await _quizRepository.GetQuestionsByQuizIdAsync(quizId);
 
-        // Map questions to DTOs
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,

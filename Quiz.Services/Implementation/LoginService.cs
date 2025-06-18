@@ -26,7 +26,7 @@ public class LoginService : ILoginService
 
         if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         {
-            return false; // Invalid credentials
+            return false; 
         }
 
         bool result = await _Loginrepository.ValidateUserAsync(email, password);
@@ -58,8 +58,7 @@ public class LoginService : ILoginService
     {
         var jwtKey = _configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is not configured.");
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);  //Metadata for signing the token like algo used (header)
-
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);  
         if (string.IsNullOrEmpty(request.Email))
         {
             throw new ArgumentException("Email cannot be null or empty.", nameof(request.Email));
@@ -68,7 +67,7 @@ public class LoginService : ILoginService
 
         Console.WriteLine($"User Role is: {user.Role}");
 
-        var claims = new[]     // claims in Payload of JWT token  (Payload)
+        var claims = new[]    
         {
         new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new Claim(ClaimTypes.Email, user.Email),
@@ -80,7 +79,7 @@ public class LoginService : ILoginService
             _configuration["Jwt:Audience"],
             claims,
             expires: request.RememberMe ? DateTime.UtcNow.AddDays(7) : DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);   // signature to ensure token integrity (no one can tamper with it)
+            signingCredentials: creds);   
 
         string tokenString = new JwtSecurityTokenHandler().WriteToken(token);
 
@@ -116,7 +115,6 @@ public class LoginService : ILoginService
             Role = "User" // Default "User" 
         };
 
-        // Save the user to the repository
         return await _Loginrepository.RegisterUserAsync(newUser);
     }
 
@@ -130,7 +128,6 @@ public class LoginService : ILoginService
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
 
-        // Extract the user ID from the token claims
         var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
         {
@@ -142,7 +139,7 @@ public class LoginService : ILoginService
 
     public async Task<UserProfileViewModel?> GetCurrentUserProfileAsync(string token)
     {
-        int userId = ExtractUserIdFromToken(token); // your JWT method
+        int userId = ExtractUserIdFromToken(token); 
 
         var user = await _Loginrepository.GetUserByIdAsync(userId);
 
