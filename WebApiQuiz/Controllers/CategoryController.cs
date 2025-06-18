@@ -43,14 +43,16 @@ public class CategoryController : ControllerBase
 
     [HttpGet("{id}")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetCategoryById(int id)
+    public async Task<ActionResult<ResponseDto>> GetCategoryById(int id)
     {
         if (id <= 0)
             return BadRequest("Invalid Category ID.");
         try
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
-            return category != null ? Ok(category) : NotFound("Category not found.");
+            return category != null 
+                ? Ok(new ResponseDto(true, "Category fetched successfully.", category))
+                : NotFound("Category not found.");
         }
         catch (Exception ex)
         {
