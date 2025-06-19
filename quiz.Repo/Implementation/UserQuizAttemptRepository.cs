@@ -8,13 +8,13 @@ namespace quiz.Repo.Implementation;
 
 public class UserQuizAttemptRepository : IUserQuizAttemptRepository
 {
-    private readonly QuiZappDbContext _context;
+        private readonly QuiZappDbContext _context;
 
     public UserQuizAttemptRepository(QuiZappDbContext context)
     {
         _context = context;
     }
-
+    
     public async Task<Userquizattempt?> GetAttemptByUserAndQuizAsync(int userId, int quizId, int categoryId)
     {
         return await _context.Userquizattempts
@@ -64,7 +64,7 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
     public async Task<Userquizattempt?> GetAttemptByIdAsync(int attemptId)
     {
         return await _context.Userquizattempts
-            .Include(a => a.Useranswers) 
+            .Include(a => a.Useranswers)
             .FirstOrDefaultAsync(a => a.Id == attemptId);
     }
 
@@ -85,5 +85,4 @@ public class UserQuizAttemptRepository : IUserQuizAttemptRepository
             .Where(uqa => uqa.Categoryid == categoryId)
             .ToListAsync();
     }
-
 }

@@ -138,7 +138,7 @@ public class QuizService : IQuizService
         if (!dto.Marks.HasValue || dto.Marks <= 0)
             return ValidationResult.Failure("Question marks must be greater than zero.");
 
-        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] {"easy", "medium", "hard" }.Contains(dto.Difficulty.ToLower()))
+        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] { "easy", "medium", "hard" }.Contains(dto.Difficulty.ToLower()))
             return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
         if (dto.Options == null || dto.Options.Count != 4)
