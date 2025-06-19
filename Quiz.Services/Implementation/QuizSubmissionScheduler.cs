@@ -78,7 +78,6 @@ namespace Quiz.Services.Implementation
                 {
                     try
                     {
-                        // Create a new scope inside the delayed task
                         using (var scope = _serviceProvider.CreateScope())
                         {
                             var quizService = scope.ServiceProvider.GetRequiredService<IQuizService>();
