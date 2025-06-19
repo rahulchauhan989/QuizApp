@@ -27,17 +27,14 @@ public class CategoryController : ControllerBase
         try
         {
             var categories = await _categoryService.GetAllCategoriesAsync();
-            return Ok(new ResponseDto(true, "Categories fetched successfully.", categories)
-            {
-                IsSuccess = true,
-                Data = categories,
-                Message = "Categories fetched successfully."
-            });
+            return categories != null && categories.Any() 
+                ? Ok(new ResponseDto(true, "Categories fetched successfully.", categories))
+                : new ResponseDto(false, "No categories found.", null, 404);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while fetching categories.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
@@ -51,19 +48,19 @@ public class CategoryController : ControllerBase
         {
             var category = await _categoryService.GetCategoryByIdAsync(id);
             return category != null 
-                ? Ok(new ResponseDto(true, "Category fetched successfully.", category))
-                : NotFound("Category not found.");
+                ? Ok(new ResponseDto(true, "Category fetched successfully.", category)) 
+                : new ResponseDto(false, "Category not found.", null, 404);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while fetching category.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpPost]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDto dto)
+    public async Task<ActionResult<ResponseDto>> CreateCategory([FromBody] CategoryCreateDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -71,21 +68,23 @@ public class CategoryController : ControllerBase
         {
             var validationResult = await _categoryService.validateCategoryAsync(dto);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var createdCategory = await _categoryService.CreateCategoryAsync(dto);
-            return Ok(createdCategory);
+            return createdCategory != null 
+                ? new ResponseDto(true, "Category created successfully.", createdCategory)
+                : new ResponseDto(false, "Failed to create category.", null, 400);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while creating category.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryUpdateDto dto)
+    public async Task<ActionResult<ResponseDto>> UpdateCategory(int id, [FromBody] CategoryUpdateDto dto)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -93,31 +92,35 @@ public class CategoryController : ControllerBase
         {
             var validationResult = await _categoryService.validateCategoryUpdateAsync(dto);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var updatedCategory = await _categoryService.UpdateCategoryAsync(id, dto);
-            return updatedCategory != null ? Ok(updatedCategory) : NotFound("Category not found.");
+            return updatedCategory != null 
+                ? new ResponseDto(true, "Category updated successfully.", updatedCategory) 
+                : new ResponseDto(false, "Failed to update category or category not found.", null, 404);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while updating category.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpDelete("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteCategory(int id)
+    public async Task<ActionResult<ResponseDto>> DeleteCategory(int id)
     {
         try
         {
             var deleted = await _categoryService.DeleteCategoryAsync(id);
-            return deleted ? Ok("Category deleted successfully.") : NotFound("Category not found.");
+            return deleted 
+                ? new ResponseDto(true, "Category deleted successfully.", null)
+                : new ResponseDto(false, "Failed to delete category or category not found.", null, 404);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while deleting category.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 }

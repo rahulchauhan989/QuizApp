@@ -1,6 +1,8 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using quiz.Domain.Dto;
+using Quiz.Services.Implementation;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
@@ -12,15 +14,19 @@ public class QuizSubmissionController : ControllerBase
     private readonly IQuizesSubmission _quizesSubmissionService;
     private readonly ILogger<QuizSubmissionController> _logger;
 
-    public QuizSubmissionController(IQuizesSubmission quizesSubmissionService, ILogger<QuizSubmissionController> logger)
+    private readonly QuizSubmissionScheduler _quizSubmissionScheduler;
+
+    public QuizSubmissionController( ILogger<QuizSubmissionController> logger, IQuizesSubmission quizesSubmissionService,
+        QuizSubmissionScheduler quizSubmissionScheduler)
     {
         _quizesSubmissionService = quizesSubmissionService;
         _logger = logger;
+        _quizSubmissionScheduler = quizSubmissionScheduler;
     }
 
     [HttpPost("search")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> SearchQuizzes([FromBody] QuizFilterDto filter)
+    public async Task<ActionResult<ResponseDto>> SearchQuizzes([FromBody] QuizFilterDto filter)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -29,21 +35,21 @@ public class QuizSubmissionController : ControllerBase
         {
             var validationResult = await _quizesSubmissionService.ValidateQuizFilterAsync(filter);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var quizzes = await _quizesSubmissionService.GetFilteredQuizzesAsync(filter);
-            return Ok(quizzes); 
+            return new ResponseDto(true, "Quizzes fetched successfully.", quizzes);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while searching quizzes.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpGet("{quizId}")]
     [Authorize(Roles = "Admin, User")]
-    public async Task<IActionResult> GetQuizWithQuestions(int quizId)
+    public async Task<ActionResult<ResponseDto>> GetQuizWithQuestions(int quizId)
     {
         if (quizId <= 0)
             return BadRequest("Invalid quiz ID.");
@@ -51,27 +57,31 @@ public class QuizSubmissionController : ControllerBase
         {
             var quiz = await _quizesSubmissionService.GetQuizByIdAsync(quizId);
             if (quiz == null)
-                return NotFound("Quiz not found.");
+                return new ResponseDto(false, "Quiz not found.", null, 404);
 
             var questions = await _quizesSubmissionService.GetQuestionsForQuizAsync(quizId);
-            return Ok(new { Quiz = quiz, Questions = questions });
+            return new ResponseDto(true, "Quiz details fetched successfully.", new
+            {
+                Quiz = quiz,
+                Questions = questions
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while fetching quiz details.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpPost("start")]
     [Authorize]
-    public async Task<IActionResult> StartQuiz([FromBody] StartQuizRequest request)
+    public async Task<ActionResult<ResponseDto>> StartQuiz([FromBody] StartQuizRequest request)
     {
         try
         {
             var validationResult = await _quizesSubmissionService.ValidateQuizStartAsync(request);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var quiz = await _quizesSubmissionService.GetQuizByIdAsync(request.QuizId);
             var questions = await _quizesSubmissionService.GetQuestionsForQuizAsync(request.QuizId);
@@ -92,40 +102,48 @@ public class QuizSubmissionController : ControllerBase
                 EndedAt = DateTime.UtcNow.AddMinutes(quiz.Durationminutes ?? 0)
             };
 
-            return Ok(response);
-        }
-        catch (InvalidOperationException ex)
-        {
-            _logger.LogWarning(ex, "Invalid operation while starting quiz.");
-            return BadRequest(ex.Message);
+             _quizSubmissionScheduler.ScheduleQuizSubmission(attemptId, DateTime.UtcNow, quiz.Durationminutes ?? 0);
+
+            return new ResponseDto(true, "Quiz started successfully.", new
+            {
+                AttemptId = attemptId,
+                Quiz = quiz,
+                Questions = questions,
+                Response = response
+            });
+
+
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while starting quiz.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 
     [HttpPost("submit")]
     [Authorize]
-    public async Task<IActionResult> SubmitQuiz([FromBody] SubmitQuizRequest request)
+    public async Task<ActionResult<ResponseDto>> SubmitQuiz([FromBody] SubmitQuizRequest request)
     {
         try
         {
             var validationResult = await _quizesSubmissionService.ValidateQuizSubmissionAsync(request);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var score = await _quizesSubmissionService.SubmitQuizAsync(request);
             if (score == -1000)
-                return BadRequest("Quiz already submitted or no score available.");
+                return new ResponseDto(false, "Quiz submission failed. There was a existingAttempt.", null, 500);
 
-            return Ok(new { Message = "Quiz submitted successfully", Score = score });
+            return new ResponseDto(true, "Quiz submitted successfully.", new
+            {
+                Score = score
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while submitting quiz.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 

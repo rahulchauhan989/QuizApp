@@ -1,3 +1,4 @@
+using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using quiz.Domain.Dto;
@@ -16,7 +17,7 @@ public class LoginController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginModel request)
+    public async Task<ActionResult<ResponseDto>> Login([FromBody] LoginModel request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
@@ -25,7 +26,7 @@ public class LoginController : ControllerBase
             var validationResult = await _loginService.ValidateLoginAsync(request);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
             }
 
             string token = await _loginService.GenerateToken(request);
@@ -37,48 +38,46 @@ public class LoginController : ControllerBase
                 Expires = DateTimeOffset.UtcNow.AddHours(1)
             });
 
-            return Ok(new
-            {
-                Token = token,
-                Message = "Login successful"
-            });
+            return new ResponseDto(true, "Login successful", new { Token = token });
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in Login method: {ex.Message}");
-            return StatusCode(500, "Internal server error");
+            return new ResponseDto(false, "Internal server error", null, 500);
         }
 
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegistrationDto request)
+    public async Task<ActionResult<ResponseDto>> Register([FromBody] RegistrationDto request)
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
         try
         {
             if (request == null)
-                return BadRequest("Request cannot be null.");
+                return new ResponseDto(false, "Invalid registration data", null, 400);
 
             string result = await _loginService.RegisterUserAsync(request);
 
-            return result switch
+            if (result == "User already exists")
             {
-                "User already exists with this email." => Conflict(result),
-                _ => Ok(new { Message = "Registration successful" })
-            };
+                return new ResponseDto(false, result, null, 400);
+            }
+            return new ResponseDto(true, result, null, 201);
+
+
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error in Register method: {ex.Message}");
-            return StatusCode(500, "Internal server error");
+            return new ResponseDto(false, "Internal server error", null, 500);
         }
     }
 
     [HttpGet("User")]
     [Authorize]
-    public async Task<IActionResult> GetCurrentUser()
+    public async Task<ActionResult<ResponseDto>> GetCurrentUser()
     {
         try
         {
@@ -95,14 +94,14 @@ public class LoginController : ControllerBase
             var userProfile = await _loginService.GetCurrentUserProfileAsync(token);
 
             if (userProfile == null)
-                return NotFound("User not found.");
+                return new ResponseDto(false, "User not found", null, 404);
 
-            return Ok(userProfile);
+            return new ResponseDto(true, "User profile retrieved successfully", userProfile);
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error in GetCurrentUser: " + ex.Message);
-            return StatusCode(500, "Internal server error.");
+            return new ResponseDto(false, "Internal server error", null, 500);
         }
     }
 }

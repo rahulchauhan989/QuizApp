@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using quiz.Domain.Dto;
 using Quiz.Services.Interface;
 
 namespace WebApiQuiz.Controllers;
@@ -19,21 +20,23 @@ public class UserQuizHistoryController : ControllerBase
 
     [HttpGet("{userId}")]
     [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> GetUserQuizHistory(int userId)
+    public async Task<ActionResult<ResponseDto>> GetUserQuizHistory(int userId)
     {
         try
         {
             var validationResult = await _userHistoryService.ValidateUserIdAsync(userId);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.ErrorMessage);
+                return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var quizHistory = await _userHistoryService.GetUserQuizHistoryAsync(userId);
-            return Ok(quizHistory);
+            return quizHistory != null && quizHistory.Any() 
+                ? new ResponseDto(true, "User quiz history fetched successfully.", quizHistory)
+                : new ResponseDto(false, "No quiz history found for the user.", null, 404);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while fetching user quiz history.");
-            return StatusCode(500, "An internal server error occurred.");
+            return new ResponseDto(false, "An internal server error occurred.", null, 500);
         }
     }
 }
