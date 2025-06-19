@@ -16,7 +16,7 @@ public class QuizSubmissionController : ControllerBase
 
     // private readonly QuizSubmissionScheduler _quizSubmissionScheduler;
 
-    public QuizSubmissionController( ILogger<QuizSubmissionController> logger, IQuizesSubmission quizesSubmissionService
+    public QuizSubmissionController(ILogger<QuizSubmissionController> logger, IQuizesSubmission quizesSubmissionService
         )
     {
         _quizesSubmissionService = quizesSubmissionService;
@@ -111,8 +111,6 @@ public class QuizSubmissionController : ControllerBase
                 Questions = questions,
                 Response = response
             });
-
-
         }
         catch (Exception ex)
         {

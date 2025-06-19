@@ -56,6 +56,7 @@ public class QuizController : ControllerBase
             if (dto.ExistingQuestionIds != null && dto.ExistingQuestionIds.Any() && dto.ExistingQuestionIds.All(id => id > 0))
             {
                 var validateResults = await _quizService.ValidateQuizForExistingQuestions(dto);
+                
                 if (!validateResults.IsValid)
                     return new ResponseDto(false, validateResults.ErrorMessage, null, 400);
 
@@ -70,8 +71,10 @@ public class QuizController : ControllerBase
             if (!string.IsNullOrWhiteSpace(dto.Text) && dto.Marks.HasValue && !string.IsNullOrWhiteSpace(dto.Difficulty) && dto.Options != null)
             {
                 var validateResults = await _quizService.ValidateQuizAsyncForNewQuestions(dto);
+
                 if (!validateResults.IsValid)
                     return new ResponseDto(false, validateResults.ErrorMessage, null, 400);
+
                 var newQuestion = await _quizService.AddNewQuestionToQuizAsync(dto);
                 return new ResponseDto(true, "New question added to quiz successfully.", newQuestion);
             }

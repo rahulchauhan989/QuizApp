@@ -26,4 +26,5 @@ public interface IQuizService
     Task<ValidationResult> validateForEditQuiz(QuizEditDto dto);
     Task<ValidationResult> validateForDeleteQuiz(int quizId);
     Task<ValidationResult> UnpublishQuizAsync(int quizId);
+    Task<ValidationResult> ValidateUpdateQuizAsync(UpdateQuizDto dto);
 }

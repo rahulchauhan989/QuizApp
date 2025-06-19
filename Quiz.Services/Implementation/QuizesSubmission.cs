@@ -26,7 +26,10 @@ public class QuizesSubmission : IQuizesSubmission
     {
         var quiz = await _quizRepository.GetQuizByIdAsync(quizId);
         if (quiz == null)
-            throw new Exception("Quiz not found.");
+        {
+            _logger.LogWarning($"Quiz with ID {quizId} not found.");
+            return null!;
+        }
 
         return new CreateQuizzDto
         {
@@ -91,7 +94,7 @@ public class QuizesSubmission : IQuizesSubmission
     {
         var existingAttempt = await _attemptRepo.GetAttemptByUserAndQuizAsync(request.UserId, request.QuizId, request.categoryId);
         if (existingAttempt != null && existingAttempt.Issubmitted == true)
-            return -1000; 
+            return -1000;
 
         var correctAnswers = await _quizRepository.GetCorrectAnswersForQuizAsync(request.categoryId);
 
@@ -142,7 +145,7 @@ public class QuizesSubmission : IQuizesSubmission
         return score;
     }
 
-  
+
     public async Task<ValidationResult> ValidateQuizFilterAsync(QuizFilterDto filter)
     {
         return await Task.Run(() =>
@@ -155,6 +158,10 @@ public class QuizesSubmission : IQuizesSubmission
 
             if (!string.IsNullOrEmpty(filter.TitleKeyword) && filter.TitleKeyword.Length < 3)
                 return ValidationResult.Failure("Title keyword must be at least 3 characters long.");
+
+            bool isCategoryExists = _quizRepository.IsCategoryExistsAsync(filter.CategoryId ?? 0).Result;
+            if (filter.CategoryId.HasValue && !isCategoryExists)
+                return ValidationResult.Failure($"Category with ID {filter.CategoryId} does not exist.");    
 
             return ValidationResult.Success();
         });

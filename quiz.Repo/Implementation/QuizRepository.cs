@@ -198,12 +198,12 @@ public class QuizRepository : IQuizRepository
             .Include(q => q.Category)
             .FirstOrDefaultAsync(q => q.Id == quizId && q.Isdeleted == false);
 
-        if (quiz == null)
-        {
-            throw new InvalidOperationException($"Quiz with ID {quizId} not found.");
-        }
+        // if (quiz == null)
+        // {
+        //     throw new InvalidOperationException($"Quiz with ID {quizId} not found.");
+        // }
 
-        return quiz;
+        return quiz!;
     }
 
     public async Task<IEnumerable<Question>> GetQuestionsByIdsAsync(List<int> questionIds)

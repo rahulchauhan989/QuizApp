@@ -235,7 +235,7 @@ public class QuestionServices : IQuestionServices
         return questions.Select(q => new QuestionDto
         {
             Id = q.Id,
-            Categoryid = q.CategoryId ?? 0, 
+            Categoryid = q.CategoryId ?? 0,
             Text = q.Text,
             Marks = q.Marks,
             Difficulty = q.Difficulty,
@@ -319,27 +319,27 @@ public class QuestionServices : IQuestionServices
         };
     }
 
-public async Task<ValidationResult> validateDeleteQuestionAsync(int questionId)
-{
-    if (questionId <= 0)
-        return ValidationResult.Failure("Invalid Question ID.");
+    public async Task<ValidationResult> validateDeleteQuestionAsync(int questionId)
+    {
+        if (questionId <= 0)
+            return ValidationResult.Failure("Invalid Question ID.");
 
-    var existingQuestion = await _quizRepository.GetQuestionByIdAsync(questionId);
-    if (existingQuestion == null || existingQuestion.Isdeleted == true)
-        return ValidationResult.Failure("Question does not exist or has been deleted.");
+        var existingQuestion = await _quizRepository.GetQuestionByIdAsync(questionId);
+        if (existingQuestion == null || existingQuestion.Isdeleted == true)
+            return ValidationResult.Failure("Question does not exist or has been deleted.");
 
-    // Check if the QuestionId exists in the Useranswer table
-    bool isQuestionUsedInAnswers = await _quizRepository.IsQuestionUsedInAnswersAsync(questionId);
-    if (isQuestionUsedInAnswers)
-        return ValidationResult.Failure("This question cannot be deleted because it has been answered in one or more quizzes.");
+        // Check if the QuestionId exists in the Useranswer table
+        bool isQuestionUsedInAnswers = await _quizRepository.IsQuestionUsedInAnswersAsync(questionId);
+        if (isQuestionUsedInAnswers)
+            return ValidationResult.Failure("This question cannot be deleted because it has been answered in one or more quizzes.");
 
-    // Check if the QuestionId exists in the Quizquestion table and the related quiz is public
-    bool isQuestionInPublicQuiz = await _quizRepository.IsQuestionInPublicQuizAsync(questionId);
-    if (isQuestionInPublicQuiz)
-        return ValidationResult.Failure("This question cannot be deleted because it is part of a public quiz.");
+        // Check if the QuestionId exists in the Quizquestion table and the related quiz is public
+        bool isQuestionInPublicQuiz = await _quizRepository.IsQuestionInPublicQuizAsync(questionId);
+        if (isQuestionInPublicQuiz)
+            return ValidationResult.Failure("This question cannot be deleted because it is part of a public quiz.");
 
-    return ValidationResult.Success();
-}
+        return ValidationResult.Success();
+    }
 
     public async Task<bool> SoftDeleteQuestionAsync(int id)
     {

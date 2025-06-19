@@ -16,7 +16,8 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
     {
-        return await _context.Categories.ToListAsync();
+        return await _context.Categories
+        .Where(c => c.Isdeleted == false).ToListAsync();
     }
 
     public async Task<Category?> GetCategoryByIdAsync(int id)
@@ -42,7 +43,7 @@ public class CategoryRepository : ICategoryRepository
         if (category == null)
             return false;
 
-   
+
         category.Isdeleted = true;
         await _context.SaveChangesAsync();
         return true;
@@ -54,11 +55,11 @@ public class CategoryRepository : ICategoryRepository
     }
 
     public async Task<IEnumerable<Quiz>> GetQuizzesByCategoryIdAsync(int categoryId)
-{
-    return await _context.Quizzes
-        .Where(q => q.Categoryid == categoryId && q.Isdeleted != true)
-        .ToListAsync();
-}
+    {
+        return await _context.Quizzes
+            .Where(q => q.Categoryid == categoryId && q.Isdeleted != true)
+            .ToListAsync();
+    }
 
 
 }

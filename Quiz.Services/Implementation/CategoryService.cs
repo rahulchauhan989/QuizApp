@@ -146,9 +146,7 @@ public class CategoryService : ICategoryService
             return ValidationResult.Failure("Category name is required.");
 
         if (dto.Name.Length < 3 || dto.Name.Length > 50)
-            return ValidationResult.Failure("Category name must be between 3 and 50 characters.");
-
-            
+            return ValidationResult.Failure("Category name must be between 3 and 50 characters.");            
 
         if (await CheckDuplicateCategoryAsync(dto.Name))
             return ValidationResult.Failure("Category with this name already exists.");

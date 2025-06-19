@@ -152,6 +152,4 @@ public class LoginService : ILoginService
             Role = user.Role
         };
     }
-
-
 }

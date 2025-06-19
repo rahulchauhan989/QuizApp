@@ -45,7 +45,6 @@ public class LoginController : ControllerBase
             Console.WriteLine($"Error in Login method: {ex.Message}");
             return new ResponseDto(false, "Internal server error", null, 500);
         }
-
     }
 
     [HttpPost("register")]
@@ -65,8 +64,6 @@ public class LoginController : ControllerBase
                 return new ResponseDto(false, result, null, 400);
             }
             return new ResponseDto(true, result, null, 201);
-
-
         }
         catch (Exception ex)
         {

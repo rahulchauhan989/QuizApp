@@ -138,7 +138,7 @@ public class QuizService : IQuizService
         if (!dto.Marks.HasValue || dto.Marks <= 0)
             return ValidationResult.Failure("Question marks must be greater than zero.");
 
-        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] { "Easy", "Medium", "Hard" }.Contains(dto.Difficulty))
+        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] { "Easy", "Medium", "Hard", "easy", "medium", "hard" }.Contains(dto.Difficulty))
             return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
         if (dto.Options == null || dto.Options.Count != 4)
@@ -161,7 +161,7 @@ public class QuizService : IQuizService
         int quizQuestionsMarksSum = await _quizRepository.GetQuizQuestionsMarksSumAsync(dto.QuizId);
 
         if (quizQuestionsMarksSum + dto.Marks.Value > quizTotalMarks)
-            return ValidationResult.Failure($"The sum of marks of the questions in the quiz ({quizQuestionsMarksSum}) + the marks of the newly added question ({dto.Marks.Value}) exceeds the total marks of the quiz ({quizTotalMarks}).");
+            return ValidationResult.Failure($"The sum of marks of the questions in the quiz ({quizQuestionsMarksSum + dto.Marks.Value}) + the marks of the newly added question ({dto.Marks.Value}) exceeds the total marks of the quiz ({quizTotalMarks}).");
 
         return ValidationResult.Success();
     }
@@ -228,6 +228,7 @@ public class QuizService : IQuizService
         bool isQuestionInQuiz = await _quizRepository.IsQuestionInQuizAsync(quizId, questionId);
         if (!isQuestionInQuiz)
             return ValidationResult.Failure("Question does not exist in the specified quiz.");
+
         return ValidationResult.Success();
     }
 
@@ -333,7 +334,6 @@ public class QuizService : IQuizService
             return ValidationResult.Failure("Cannot edit a published quiz.");
         return ValidationResult.Success();
     }
-
     public async Task<ValidationResult> validateForDeleteQuiz(int quizId)
     {
         if (quizId <= 0)
@@ -353,6 +353,37 @@ public class QuizService : IQuizService
         return ValidationResult.Success();
     }
 
+    public async Task<ValidationResult> ValidateUpdateQuizAsync(UpdateQuizDto dto)
+    {
+        if (dto == null)
+            return ValidationResult.Failure("Quiz data is required.");
+
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return ValidationResult.Failure("Quiz title cannot be empty.");
+
+        if (dto.Totalmarks <= 0)
+            return ValidationResult.Failure("Total marks must be greater than zero.");
+
+        if (dto.Durationminutes <= 0)
+            return ValidationResult.Failure("Duration must be greater than zero.");
+
+        if (dto.Categoryid <= 0)
+            return ValidationResult.Failure("Invalid Category ID.");
+
+        bool isValidCategory = await _quizRepository.IsCategoryExistsAsync((int)dto.Categoryid!);
+        if (!isValidCategory)
+            return ValidationResult.Failure("Category does not exist.");
+
+        var quiz = await _quizRepository.GetQuizByIdAsync(dto.Id);
+        if (quiz == null || quiz.Isdeleted == true)
+            return ValidationResult.Failure("Quiz does not exist or has been deleted.");
+
+        if (quiz.Ispublic == true)
+            return ValidationResult.Failure("Cannot update a published quiz.");
+
+        return ValidationResult.Success();
+    }
+
     public async Task<QuizDto> CreateQuizOnlyAsync(CreateQuizOnlyDto dto)
     {
         var token = _httpContextAccessor.HttpContext?.Request.Headers["Authorization"].ToString().Replace("Bearer ", "")!;
@@ -364,7 +395,7 @@ public class QuizService : IQuizService
             Description = dto.Description,
             Totalmarks = dto.Totalmarks,
             Durationminutes = dto.Durationminutes,
-            Ispublic = false, 
+            Ispublic = false,
             Categoryid = dto.Categoryid,
             Createdby = userId
         };
@@ -484,7 +515,7 @@ public class QuizService : IQuizService
                     Text = questionDto.Text!,
                     Marks = questionDto.Marks,
                     Difficulty = questionDto.Difficulty,
-                    CategoryId = dto.Categoryid, 
+                    CategoryId = dto.Categoryid,
                     Options = questionDto.Options?.Select(o => new Option
                     {
                         Text = o.Text!,
@@ -523,8 +554,6 @@ public class QuizService : IQuizService
             }).ToList()
         };
     }
-
-
 
     public async Task<QuizDto> CreateQuizFromExistingQuestionsAsync(CreateQuizFromExistingQuestionsDto dto)
     {
@@ -641,21 +670,17 @@ public class QuizService : IQuizService
     }
     public async Task<bool> SoftDeleteQuizAsync(int id)
     {
-        // Fetch the quiz
         var quiz = await _quizRepository.GetQuizByIdAsync(id);
         if (quiz == null || quiz.Isdeleted == true)
             return false;
 
         bool hasUnsubmittedAttempts = await _quizRepository.HasUnsubmittedAttemptsAsync(id);
         if (hasUnsubmittedAttempts)
-            return false; 
+            return false;
 
         await _quizRepository.SoftDeleteQuizAsync(id);
         return true;
     }
-
-
-
     public async Task<bool> RemoveQuestionFromQuizAsync(RemoveQuestionFromQuizDto dto)
     {
         return await _quizRepository.RemoveQuestionFromQuizAsync(dto.QuizId, dto.QuestionId);
@@ -698,6 +723,4 @@ public class QuizService : IQuizService
 
         await _attemptRepo.UpdateAttemptAsync(attempt);
     }
-
-
 }
