@@ -51,16 +51,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// builder.Services.AddHostedService<QuizSubmissionService>();
-// var host = Host.CreateDefaultBuilder(args)
-//     .ConfigureServices(services =>
-//     {
-//         services.AddScoped<IQuizService, QuizService>(); 
-//         services.AddScoped<QuizSubmissionScheduler>();   
-//     })
-//     .Build();
-
-// await host.RunAsync();
+builder.Services.AddHostedService<QuizSubmissionService>();
 
 builder.Services.AddSwaggerGen(options => 
 {

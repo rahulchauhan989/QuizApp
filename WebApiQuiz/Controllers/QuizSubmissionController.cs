@@ -14,14 +14,14 @@ public class QuizSubmissionController : ControllerBase
     private readonly IQuizesSubmission _quizesSubmissionService;
     private readonly ILogger<QuizSubmissionController> _logger;
 
-    private readonly QuizSubmissionScheduler _quizSubmissionScheduler;
+    // private readonly QuizSubmissionScheduler _quizSubmissionScheduler;
 
-    public QuizSubmissionController( ILogger<QuizSubmissionController> logger, IQuizesSubmission quizesSubmissionService,
-        QuizSubmissionScheduler quizSubmissionScheduler)
+    public QuizSubmissionController( ILogger<QuizSubmissionController> logger, IQuizesSubmission quizesSubmissionService
+        )
     {
         _quizesSubmissionService = quizesSubmissionService;
         _logger = logger;
-        _quizSubmissionScheduler = quizSubmissionScheduler;
+        // _quizSubmissionScheduler = quizSubmissionScheduler;
     }
 
     [HttpPost("search")]
@@ -102,7 +102,7 @@ public class QuizSubmissionController : ControllerBase
                 EndedAt = DateTime.UtcNow.AddMinutes(quiz.Durationminutes ?? 0)
             };
 
-             _quizSubmissionScheduler.ScheduleQuizSubmission(attemptId, DateTime.UtcNow, quiz.Durationminutes ?? 0);
+            //  _quizSubmissionScheduler.ScheduleQuizSubmission(attemptId, DateTime.UtcNow, quiz.Durationminutes ?? 0);
 
             return new ResponseDto(true, "Quiz started successfully.", new
             {
