@@ -29,7 +29,7 @@ public class UserQuizHistoryController : ControllerBase
                 return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var quizHistory = await _userHistoryService.GetUserQuizHistoryAsync(userId);
-            return quizHistory != null && quizHistory.Any() 
+            return quizHistory != null && quizHistory.Any()
                 ? new ResponseDto(true, "User quiz history fetched successfully.", quizHistory)
                 : new ResponseDto(false, "No quiz history found for the user.", null, 404);
         }

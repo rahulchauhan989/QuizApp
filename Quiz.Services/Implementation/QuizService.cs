@@ -38,7 +38,7 @@ public class QuizService : IQuizService
     {
         return await Task.Run(async () =>
         {
-            string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
+            string[] difficultyLevels = {"easy", "medium", "hard" };
 
             if (dto == null)
                 return ValidationResult.Failure("Quiz data is required.");
@@ -77,7 +77,7 @@ public class QuizService : IQuizService
                     if (question.Marks <= 0)
                         return ValidationResult.Failure("Question marks must be greater than zero.");
 
-                    if (string.IsNullOrWhiteSpace(question.Difficulty) || !difficultyLevels.Contains(question.Difficulty))
+                    if (string.IsNullOrWhiteSpace(question.Difficulty) || !difficultyLevels.Contains(question.Difficulty.ToLower()))
                         return ValidationResult.Failure($"Invalid difficulty level: {question.Difficulty}");
 
                     if (question.Options == null || question.Options.Count != 4)
@@ -138,7 +138,7 @@ public class QuizService : IQuizService
         if (!dto.Marks.HasValue || dto.Marks <= 0)
             return ValidationResult.Failure("Question marks must be greater than zero.");
 
-        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] { "Easy", "Medium", "Hard", "easy", "medium", "hard" }.Contains(dto.Difficulty))
+        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !new[] {"easy", "medium", "hard" }.Contains(dto.Difficulty.ToLower()))
             return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
         if (dto.Options == null || dto.Options.Count != 4)
@@ -313,7 +313,7 @@ public class QuizService : IQuizService
                 if (question.Marks <= 0)
                     return ValidationResult.Failure("Question marks must be greater than zero.");
 
-                if (string.IsNullOrWhiteSpace(question.Difficulty) || !new[] { "Easy", "Medium", "Hard" }.Contains(question.Difficulty))
+                if (string.IsNullOrWhiteSpace(question.Difficulty) || !new[] { "easy", "medium", "hard" }.Contains(question.Difficulty.ToLower()))
                     return ValidationResult.Failure($"Invalid difficulty level: {question.Difficulty}");
 
                 if (question.Options == null || question.Options.Count != 4)

@@ -38,6 +38,9 @@ public class QuizSubmissionController : ControllerBase
                 return new ResponseDto(false, validationResult.ErrorMessage, null, 400);
 
             var quizzes = await _quizesSubmissionService.GetFilteredQuizzesAsync(filter);
+            if (quizzes == null || !quizzes.Any())
+                return new ResponseDto(false, "No quizzes found matching the criteria.", null, 404);
+
             return new ResponseDto(true, "Quizzes fetched successfully.", quizzes);
         }
         catch (Exception ex)

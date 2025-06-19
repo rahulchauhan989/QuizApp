@@ -29,7 +29,7 @@ public class QuestionServices : IQuestionServices
     {
         return await Task.Run(async () =>
          {
-             string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
+             string[] difficultyLevels = {"easy", "medium", "hard" };
 
              if (dto == null)
                  return ValidationResult.Failure("Question data is required.");
@@ -47,7 +47,7 @@ public class QuestionServices : IQuestionServices
              if (dto.Marks <= 0)
                  return ValidationResult.Failure("Marks must be greater than zero.");
 
-             if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty))
+             if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty.ToLower()))
                  return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
              if (dto.Options == null || dto.Options.Count != 4)
@@ -65,7 +65,7 @@ public class QuestionServices : IQuestionServices
 
     public async Task<ValidationResult> ValidateQuestionUpdate(QuestionUpdateDto dto)
     {
-        string[] difficultyLevels = { "Easy", "Medium", "Hard", "easy", "medium", "hard" };
+        string[] difficultyLevels = { "easy", "medium", "hard" };
 
         if (dto == null)
             return ValidationResult.Failure("Question data is required.");
@@ -77,12 +77,10 @@ public class QuestionServices : IQuestionServices
         if (existingQuestion == null || existingQuestion.Isdeleted == true)
             return ValidationResult.Failure("Question does not exist or has been deleted.");
 
-        // Check if the QuestionId exists in the Useranswer table
         bool isQuestionUsedInAnswers = await _quizRepository.IsQuestionUsedInAnswersAsync(dto.Id);
         if (isQuestionUsedInAnswers)
             return ValidationResult.Failure("This question cannot be edited because it has been answered in one or more quizzes.");
 
-        // Check if the QuestionId exists in the Quizquestion table and the related quiz is public
         bool isQuestionInPublicQuiz = await _quizRepository.IsQuestionInPublicQuizAsync(dto.Id);
         if (isQuestionInPublicQuiz)
             return ValidationResult.Failure("This question cannot be edited because it is part of a public quiz.");
@@ -100,7 +98,7 @@ public class QuestionServices : IQuestionServices
         if (dto.Marks <= 0)
             return ValidationResult.Failure("Marks must be greater than zero.");
 
-        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty))
+        if (string.IsNullOrWhiteSpace(dto.Difficulty) || !difficultyLevels.Contains(dto.Difficulty.ToLower()))
             return ValidationResult.Failure($"Invalid difficulty level: {dto.Difficulty}");
 
         if (dto.Options == null || dto.Options.Count != 4)

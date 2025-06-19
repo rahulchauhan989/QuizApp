@@ -163,6 +163,8 @@ public class QuizesSubmission : IQuizesSubmission
             if (filter.CategoryId.HasValue && !isCategoryExists)
                 return ValidationResult.Failure($"Category with ID {filter.CategoryId} does not exist.");    
 
+                
+
             return ValidationResult.Success();
         });
     }
