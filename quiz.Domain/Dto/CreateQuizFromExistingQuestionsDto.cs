@@ -19,9 +19,8 @@ public class CreateQuizFromExistingQuestionsDto
     [Range(1,180, ErrorMessage = "Duration must be between 1 and 180 minutes.")]
     public int? Durationminutes { get; set; }
     public bool? Ispublic { get; set; }
-    // public DateTime? Startdate { get; set; }
-    // public DateTime? Enddate { get; set; }
+ 
     public int Categoryid { get; set; }
     public int Createdby { get; set; }
-    public List<int> QuestionIds { get; set; } = new List<int>(); // List of existing question IDs
+    public List<int> QuestionIds { get; set; } = new List<int>(); 
 }

@@ -18,12 +18,10 @@ public class CreateQuizDto
     [Range(1, 180, ErrorMessage = "Duration must be between 1 and 180 minutes.")]
     public int? Durationminutes { get; set; }
     public bool? Ispublic { get; set; }
-    // public DateTime? Startdate { get; set; }
-    // public DateTime? Enddate { get; set; }
+  
     [Required(ErrorMessage = "Category ID is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0.")]
     public int Categoryid { get; set; }
-    // public int Createdby { get; set; }
     public List<int>? TagIds { get; set; } 
     public List<CreateQuestionDto>? Questions { get; set; } 
 }

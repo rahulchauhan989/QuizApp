@@ -6,7 +6,7 @@ namespace quiz.Domain.Dto
     {
         [Required(ErrorMessage = "Quiz ID is required.")]
         [Range(1, int.MaxValue, ErrorMessage = "Quiz ID must be a positive integer.")]
-        public int Id { get; set; }  // Required to identify quiz
+        public int Id { get; set; }  
 
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters.")]

@@ -31,7 +31,7 @@ public class AddQuestionToQuizDto
     [Required(ErrorMessage = "Quiz ID is required.")]
     [Range(1, int.MaxValue, ErrorMessage = "Quiz ID must be greater than 0.")]
     public int QuizId { get; set; }
-    public List<int>? ExistingQuestionIds { get; set; } // List of existing question IDs
+    public List<int>? ExistingQuestionIds { get; set; } 
 
     [MaxLength(200, ErrorMessage = "Question text cannot exceed 200 characters.")]
     public string? Text { get; set; }

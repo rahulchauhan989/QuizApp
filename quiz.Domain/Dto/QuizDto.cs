@@ -3,7 +3,7 @@ namespace quiz.Domain.Dto;
 public class QuizDto
 {
     public int Id { get; set; }
-    public string? Title { get; set; }  //
+    public string? Title { get; set; }  
     public string? Description { get; set; }
     public int Totalmarks { get; set; }
     public int? Durationminutes { get; set; }
