@@ -66,6 +66,4 @@ public class UserHistory : IUserHistory
 
         return ValidationResult.Success();
     }
-
-
 }
